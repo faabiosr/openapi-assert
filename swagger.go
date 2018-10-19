@@ -82,3 +82,50 @@ func (s *Swagger) FindNode(segments ...string) (interface{}, error) {
 
 	return data, nil
 }
+
+func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
+	path, err := s.FindPath(path)
+	method = strings.ToLower(method)
+
+	if err != nil {
+		return []string{}, err
+	}
+
+	data, err := s.FindNode("paths", path, method, segment)
+
+	if err != nil {
+		return []string{}, err
+	}
+
+	types := []string{}
+
+	if data != nil {
+		types = data.([]string)
+	}
+
+	if len(types) > 0 {
+		return types, nil
+	}
+
+	data, err = s.FindNode(segment)
+
+	if err != nil {
+		return []string{}, err
+	}
+
+	if data != nil {
+		types = data.([]string)
+	}
+
+	return types, nil
+}
+
+// RequestMediaTypes retrives a list of request media types allowed.
+func (s *Swagger) RequestMediaTypes(path, method string) ([]string, error) {
+	return s.mediaTypes(path, method, "produces")
+}
+
+// ResponseMediaTypes retrives a list of response media types allowed.
+func (s *Swagger) ResponseMediaTypes(path, method string) ([]string, error) {
+	return s.mediaTypes(path, method, "consumes")
+}

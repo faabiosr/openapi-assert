@@ -2,6 +2,7 @@ package assert
 
 import (
 	"github.com/stretchr/testify/suite"
+	"net/http"
 	"testing"
 )
 
@@ -73,6 +74,48 @@ func (s *SwaggerTestSuite) TestFindNode() {
 
 	s.assert.NotEmpty(node)
 	s.assert.NoError(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestMediaTypesWithInvalidPath() {
+	types, err := s.doc.RequestMediaTypes("/some", http.MethodPost)
+
+	s.assert.Len(types, 0)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestMediaTypes() {
+	types, err := s.doc.RequestMediaTypes("/api/pets", http.MethodGet)
+
+	s.assert.Len(types, 4)
+	s.assert.Nil(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestMediaTypesReturnsDefaultTypes() {
+	types, err := s.doc.RequestMediaTypes("/api/pets/1", http.MethodDelete)
+
+	s.assert.Len(types, 1)
+	s.assert.Nil(err)
+}
+
+func (s *SwaggerTestSuite) TestResponseMediaTypesWithInvalidPath() {
+	types, err := s.doc.ResponseMediaTypes("/some", http.MethodPost)
+
+	s.assert.Len(types, 0)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestResponseMediaTypes() {
+	types, err := s.doc.ResponseMediaTypes("/api/pets/1", http.MethodPatch)
+
+	s.assert.Len(types, 2)
+	s.assert.Nil(err)
+}
+
+func (s *SwaggerTestSuite) TestResponseMediaTypesReturnsDefaultTypes() {
+	types, err := s.doc.ResponseMediaTypes("/api/pets/1", http.MethodDelete)
+
+	s.assert.Len(types, 1)
+	s.assert.Nil(err)
 }
 
 func TestSwaggerTestSuite(t *testing.T) {
