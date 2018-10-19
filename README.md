@@ -22,6 +22,63 @@ If you want to get an specific version, please use the example below:
 go get gopkg.in/fabiorphp/openapi-assert.v0
 ```
 
+## Usage
+The package provides methods that allow you to write simple swagger validations.
+
+See it in action:
+
+```go
+package main
+
+import (
+    assert "github.com/fabiorphp/openapi-assert"
+    "log"
+    "net/http"
+)
+
+func main() {
+    doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    log.Println(
+        assert.RequestMediaType("text/html", doc, "/pet", http.MethodPost),
+    )
+}
+```
+
+If you want to assert many times, see below:
+
+```go
+package main
+
+import (
+    assert "github.com/fabiorphp/openapi-assert"
+    "log"
+    "net/http"
+)
+
+func main() {
+    doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
+    assert := assert.New(doc)
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    log.Println(
+        assert.RequestMediaType("text/html", "/pet", http.MethodPost),
+    )
+
+    log.Println(
+        assert.RequestMediaType("image/gif", "/v2/pet", http.MethodPost),
+    )
+}
+```
+
+
 ## Development
 
 ### Requirements
