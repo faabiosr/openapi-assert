@@ -118,6 +118,28 @@ func (s *SwaggerTestSuite) TestResponseMediaTypesReturnsDefaultTypes() {
 	s.assert.Nil(err)
 }
 
+func (s *SwaggerTestSuite) TestRequestHeadersWithInvalidPath() {
+	headers, err := s.doc.RequestHeaders("/some", http.MethodPost)
+
+	s.assert.Len(headers, 0)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestHeaders() {
+	headers, err := s.doc.RequestHeaders("/api/pets/1", http.MethodPatch)
+
+	s.assert.Len(headers, 3)
+	s.assert.Contains(headers, "x-required-header")
+	s.assert.NoError(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestHeadersRetrievesNoHeaders() {
+	headers, err := s.doc.RequestHeaders("/api/food", http.MethodGet)
+
+	s.assert.Len(headers, 0)
+	s.assert.NoError(err)
+}
+
 func TestSwaggerTestSuite(t *testing.T) {
 	suite.Run(t, new(SwaggerTestSuite))
 }

@@ -129,3 +129,63 @@ func (s *Swagger) RequestMediaTypes(path, method string) ([]string, error) {
 func (s *Swagger) ResponseMediaTypes(path, method string) ([]string, error) {
 	return s.mediaTypes(path, method, "consumes")
 }
+
+func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, error) {
+	path, err := s.FindPath(path)
+	method = strings.ToLower(method)
+
+	params := []spec.Parameter{}
+
+	if err != nil {
+		return params, err
+	}
+
+	data, _ := s.FindNode("paths", path, "parameters")
+
+	if data != nil {
+		params = append(params, data.([]spec.Parameter)...)
+	}
+
+	data, _ = s.FindNode("paths", path, method, "parameters")
+
+	if data != nil {
+		params = append(params, data.([]spec.Parameter)...)
+	}
+
+	return params, nil
+}
+
+// RequestHeaders retrieves a list of request headers.
+func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
+	params, err := s.requestParameters(path, method)
+
+	headers := Headers{}
+
+	if err != nil {
+		return headers, err
+	}
+
+	required := []string{}
+
+	for _, param := range params {
+		if param.In == "header" {
+			name := strings.ToLower(param.Name)
+
+			headers[name] = &Headers{
+				"type":        param.Type,
+				"description": param.Description,
+				"in":          param.In,
+			}
+
+			if param.Required {
+				required = append(required, name)
+			}
+		}
+	}
+
+	if len(required) > 0 {
+		headers["required"] = required
+	}
+
+	return headers, nil
+}
