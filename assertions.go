@@ -1,5 +1,9 @@
 package assert
 
+import (
+	"net/http"
+)
+
 type (
 	// Assertions packs all assert methods into one structure
 	Assertions struct {
@@ -20,4 +24,9 @@ func (a *Assertions) RequestMediaType(mediaType, path, method string) error {
 // ResponseMediaType asserts response media type against a list.
 func (a *Assertions) ResponseMediaType(mediaType, path, method string) error {
 	return ResponseMediaType(mediaType, a.doc, path, method)
+}
+
+// RequestHeaders asserts rquest headers againts a schema header list.
+func (a *Assertions) RequestHeaders(header http.Header, path, method string) error {
+	return RequestHeaders(header, a.doc, path, method)
 }

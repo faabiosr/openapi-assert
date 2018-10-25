@@ -53,6 +53,24 @@ func (s *AssertTestSuite) TestResponseMediaTypeWithValidType() {
 	s.assert.Nil(err)
 }
 
+func (s *AssertTestSuite) TestRequestHeadersWithInvalidPath() {
+	headers := map[string][]string{}
+
+	err := RequestHeaders(headers, s.doc, "/pet", http.MethodPost)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrResourceURI)
+}
+
+func (s *AssertTestSuite) TestRequestHeaderWithoutRequiredValues() {
+	headers := map[string][]string{}
+
+	err := RequestHeaders(headers, s.doc, "/api/pets/1", http.MethodPatch)
+
+	s.assert.Error(err)
+	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrRequestHeaders, "{}", "x-required-header is required")))
+}
+
 func TestAssertTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertTestSuite))
 }

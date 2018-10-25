@@ -31,6 +31,16 @@ func (s *AssertionsTestSuite) TestResponseMediaType() {
 	s.assert.Nil(err)
 }
 
+func (s *AssertionsTestSuite) TestRequestHeaders() {
+	headers := map[string][]string{
+		"x-required-header": {"value"},
+	}
+
+	err := s.assertions.RequestHeaders(headers, "/api/pets/1", http.MethodPatch)
+
+	s.assert.Nil(err)
+}
+
 func TestAssertionsTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertionsTestSuite))
 }
