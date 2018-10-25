@@ -64,7 +64,7 @@ func ResponseMediaType(mediaType string, doc Document, path, method string) erro
 	return fail(fmt.Sprintf(ErrMediaType, mediaType, strings.Join(types, ", ")))
 }
 
-// RequestHeaders asserts rquest headers againts a schema header list.
+// RequestHeaders asserts rquest headers againt a schema header list.
 func RequestHeaders(header http.Header, doc Document, path, method string) error {
 	schema, err := doc.RequestHeaders(path, method)
 
