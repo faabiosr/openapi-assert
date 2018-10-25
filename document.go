@@ -20,5 +20,8 @@ type (
 
 		// RequestHeaders retrieves a list of request headers.
 		RequestHeaders(path, method string) (Headers, error)
+
+		// ResponseHeaders retrieves a list of response headers.
+		ResponseHeaders(path, method string, statusCode int) (Headers, error)
 	}
 )

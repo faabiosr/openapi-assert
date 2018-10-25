@@ -140,6 +140,28 @@ func (s *SwaggerTestSuite) TestRequestHeadersRetrievesNoHeaders() {
 	s.assert.NoError(err)
 }
 
+func (s *SwaggerTestSuite) TestResponseHeadersWithInvalidPath() {
+	headers, err := s.doc.ResponseHeaders("/some", http.MethodPost, http.StatusOK)
+
+	s.assert.Len(headers, 0)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestResponseHeaders() {
+	headers, err := s.doc.ResponseHeaders("/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Len(headers, 2)
+	s.assert.Contains(headers, "etag")
+	s.assert.NoError(err)
+}
+
+func (s *SwaggerTestSuite) TestResponseHeadersDefault() {
+	headers, err := s.doc.ResponseHeaders("/api/pets", http.MethodGet, http.StatusBadRequest)
+
+	s.assert.Len(headers, 0)
+	s.assert.NoError(err)
+}
+
 func TestSwaggerTestSuite(t *testing.T) {
 	suite.Run(t, new(SwaggerTestSuite))
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/pkg/errors"
 	"github.com/yosida95/uritemplate"
+	"strconv"
 	"strings"
 )
 
@@ -155,6 +156,31 @@ func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, erro
 	return params, nil
 }
 
+func (s *Swagger) response(path, method string, statusCode int) (spec.Response, error) {
+	path, err := s.FindPath(path)
+	method = strings.ToLower(method)
+
+	var res spec.Response
+
+	if err != nil {
+		return res, err
+	}
+
+	data, err := s.FindNode("paths", path, method, "responses", strconv.Itoa(statusCode))
+
+	if data != nil && err == nil {
+		return data.(spec.Response), nil
+	}
+
+	data, err = s.FindNode("paths", path, method, "responses", "default")
+
+	if err != nil {
+		return res, err
+	}
+
+	return *data.(*spec.Response), err
+}
+
 // RequestHeaders retrieves a list of request headers.
 func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
 	params, err := s.requestParameters(path, method)
@@ -181,6 +207,31 @@ func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
 				required = append(required, name)
 			}
 		}
+	}
+
+	if len(required) > 0 {
+		headers["required"] = required
+	}
+
+	return headers, nil
+}
+
+// ResponseHeaders retrieves a list of response headers.
+func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers, error) {
+	res, err := s.response(path, method, statusCode)
+	headers := Headers{}
+
+	if err != nil {
+		return headers, err
+	}
+
+	required := []string{}
+
+	for name, schema := range res.Headers {
+		name := strings.ToLower(name)
+		headers[name] = schema
+
+		required = append(required, name)
 	}
 
 	if len(required) > 0 {
