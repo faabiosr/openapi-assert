@@ -30,3 +30,8 @@ func (a *Assertions) ResponseMediaType(mediaType, path, method string) error {
 func (a *Assertions) RequestHeaders(header http.Header, path, method string) error {
 	return RequestHeaders(header, a.doc, path, method)
 }
+
+// ResponseHeaders asserts response headers againt a schema header list.
+func (a *Assertions) ResponseHeaders(header http.Header, path, method string, statusCode int) error {
+	return ResponseHeaders(header, a.doc, path, method, statusCode)
+}

@@ -71,6 +71,24 @@ func (s *AssertTestSuite) TestRequestHeaderWithoutRequiredValues() {
 	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrRequestHeaders, "{}", "x-required-header is required")))
 }
 
+func (s *AssertTestSuite) TestResponseHeadersWithInvalidPath() {
+	headers := map[string][]string{}
+
+	err := ResponseHeaders(headers, s.doc, "/pet", http.MethodPost, http.StatusOK)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrResourceURI)
+}
+
+func (s *AssertTestSuite) TestResponseHeaderWithoutRequiredValues() {
+	headers := map[string][]string{}
+
+	err := ResponseHeaders(headers, s.doc, "/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Error(err)
+	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrResponseHeaders, "{}", "etag is required")))
+}
+
 func TestAssertTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertTestSuite))
 }

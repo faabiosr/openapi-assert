@@ -19,6 +19,9 @@ var (
 	// ErrRequestHeaders shows the request headers error format.
 	ErrRequestHeaders = `'%s' is a valid request header (%s)`
 
+	// ErrResponseHeaders shows the response headers error format.
+	ErrResponseHeaders = `'%s' is a valid response header (%s)`
+
 	// ErrValidation wrap the json schema validation errors
 	ErrValidation = "unable to load the validation"
 
@@ -105,5 +108,49 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 
 	return fail(
 		fmt.Sprintf(ErrRequestHeaders, string(data), strings.Join(errorMessages, ", ")),
+	)
+}
+
+// ResponseHeaders asserts response headers againt a schema header list.
+func ResponseHeaders(header http.Header, doc Document, path, method string, statusCode int) error {
+	schema, err := doc.ResponseHeaders(path, method, statusCode)
+
+	if err != nil {
+		return err
+	}
+
+	headers := map[string]string{}
+
+	for k, v := range header {
+		headers[k] = strings.Join(v, ", ")
+	}
+
+	result, err := gojsonschema.Validate(
+		gojsonschema.NewGoLoader(schema),
+		gojsonschema.NewGoLoader(headers),
+	)
+
+	if err != nil {
+		return errors.Wrap(err, ErrValidation)
+	}
+
+	if result.Valid() {
+		return nil
+	}
+
+	data, err := json.Marshal(headers)
+
+	if err != nil {
+		return errors.Wrap(err, ErrJson)
+	}
+
+	errorMessages := []string{}
+
+	for _, v := range result.Errors() {
+		errorMessages = append(errorMessages, v.Description())
+	}
+
+	return fail(
+		fmt.Sprintf(ErrResponseHeaders, string(data), strings.Join(errorMessages, ", ")),
 	)
 }

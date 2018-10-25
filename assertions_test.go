@@ -41,6 +41,16 @@ func (s *AssertionsTestSuite) TestRequestHeaders() {
 	s.assert.Nil(err)
 }
 
+func (s *AssertionsTestSuite) TestResponseHeaders() {
+	headers := map[string][]string{
+		"etag": {"value"},
+	}
+
+	err := s.assertions.ResponseHeaders(headers, "/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Nil(err)
+}
+
 func TestAssertionsTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertionsTestSuite))
 }
