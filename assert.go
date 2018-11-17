@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/xeipuuv/gojsonschema"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -18,6 +19,9 @@ var (
 
 	// ErrRequestHeaders shows the request headers error format.
 	ErrRequestHeaders = `'%s' is a valid request header (%s)`
+
+	// ErrRequestQuery shows the request query error format.
+	ErrRequestQuery = `'%s' is a valid request query (%s)`
 
 	// ErrResponseHeaders shows the response headers error format.
 	ErrResponseHeaders = `'%s' is a valid response header (%s)`
@@ -152,5 +156,43 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 
 	return fail(
 		fmt.Sprintf(ErrResponseHeaders, string(data), strings.Join(errorMessages, ", ")),
+	)
+}
+
+// RequestQuery asserts request query againt a schema.
+func RequestQuery(query url.Values, doc Document, path, method string) error {
+	schema, err := doc.RequestQuery(path, method)
+
+	if err != nil {
+		return err
+	}
+
+	result, err := gojsonschema.Validate(
+		gojsonschema.NewGoLoader(schema),
+		gojsonschema.NewGoLoader(query),
+	)
+
+	if err != nil {
+		return errors.Wrap(err, ErrValidation)
+	}
+
+	if result.Valid() {
+		return nil
+	}
+
+	data, err := json.Marshal(query)
+
+	if err != nil {
+		return errors.Wrap(err, ErrJson)
+	}
+
+	errorMessages := []string{}
+
+	for _, v := range result.Errors() {
+		errorMessages = append(errorMessages, v.Description())
+	}
+
+	return fail(
+		fmt.Sprintf(ErrRequestQuery, string(data), strings.Join(errorMessages, ", ")),
 	)
 }

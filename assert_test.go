@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/suite"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -87,6 +88,24 @@ func (s *AssertTestSuite) TestResponseHeaderWithoutRequiredValues() {
 
 	s.assert.Error(err)
 	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrResponseHeaders, "{}", "etag is required")))
+}
+
+func (s *AssertTestSuite) TestRequestQueryWithInvalidPath() {
+	query := url.Values{}
+
+	err := RequestQuery(query, s.doc, "/pet", http.MethodPost)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrResourceURI)
+}
+
+func (s *AssertTestSuite) TestRequestQueryWithoutRequiredValues() {
+	query := url.Values{}
+
+	err := RequestQuery(query, s.doc, "/api/pets", http.MethodGet)
+
+	s.assert.Error(err)
+	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrRequestQuery, "{}", "limit is required")))
 }
 
 func TestAssertTestSuite(t *testing.T) {

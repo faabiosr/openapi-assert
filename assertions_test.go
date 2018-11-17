@@ -3,6 +3,7 @@ package assert
 import (
 	"github.com/stretchr/testify/suite"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -47,6 +48,17 @@ func (s *AssertionsTestSuite) TestResponseHeaders() {
 	}
 
 	err := s.assertions.ResponseHeaders(headers, "/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Nil(err)
+}
+
+func (s *AssertionsTestSuite) TestRequestQuery() {
+	query := url.Values{}
+	query.Add("tags", "foo")
+	query.Add("tags", "bar")
+	query.Add("limit", "1")
+
+	err := s.assertions.RequestQuery(query, "/api/pets", http.MethodGet)
 
 	s.assert.Nil(err)
 }

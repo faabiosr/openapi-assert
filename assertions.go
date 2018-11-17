@@ -2,6 +2,7 @@ package assert
 
 import (
 	"net/http"
+	"net/url"
 )
 
 type (
@@ -34,4 +35,9 @@ func (a *Assertions) RequestHeaders(header http.Header, path, method string) err
 // ResponseHeaders asserts response headers againt a schema header list.
 func (a *Assertions) ResponseHeaders(header http.Header, path, method string, statusCode int) error {
 	return ResponseHeaders(header, a.doc, path, method, statusCode)
+}
+
+// RequestQuery asserts request query againt a schema query list.
+func (a *Assertions) RequestQuery(query url.Values, path, method string) error {
+	return RequestQuery(query, a.doc, path, method)
 }
