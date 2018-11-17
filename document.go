@@ -4,6 +4,8 @@ type (
 	// Headers is a list of headers in json schema format.
 	Headers map[string]interface{}
 
+	Query map[string]interface{}
+
 	// Document that defines the contract for reading OpenAPI documents.
 	Document interface {
 		// FindPath searches for an uri in document and returns the path.
@@ -23,5 +25,8 @@ type (
 
 		// ResponseHeaders retrieves a list of response headers.
 		ResponseHeaders(path, method string, statusCode int) (Headers, error)
+
+		// RequestQuery retrieves a list of request query.
+		RequestQuery(path, method string) (Query, error)
 	}
 )

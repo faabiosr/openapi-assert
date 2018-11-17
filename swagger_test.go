@@ -162,6 +162,29 @@ func (s *SwaggerTestSuite) TestResponseHeadersDefault() {
 	s.assert.NoError(err)
 }
 
+func (s *SwaggerTestSuite) TestRequestQueryWithInvalidPath() {
+	query, err := s.doc.RequestQuery("/some", http.MethodPost)
+
+	s.assert.Len(query, 0)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestQuery() {
+	query, err := s.doc.RequestQuery("/api/pets", http.MethodGet)
+
+	s.assert.Len(query, 3)
+	s.assert.Contains(query, "limit")
+	s.assert.Contains(query, "tags")
+	s.assert.NoError(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestQueryRetrievesNoQuery() {
+	query, err := s.doc.RequestQuery("/api/food", http.MethodGet)
+
+	s.assert.Len(query, 0)
+	s.assert.NoError(err)
+}
+
 func TestSwaggerTestSuite(t *testing.T) {
 	suite.Run(t, new(SwaggerTestSuite))
 }

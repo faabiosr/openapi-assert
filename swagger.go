@@ -240,3 +240,38 @@ func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers,
 
 	return headers, nil
 }
+
+// RequestQuery retrieves a list of request query.
+func (s *Swagger) RequestQuery(path, method string) (Query, error) {
+	params, err := s.requestParameters(path, method)
+
+	query := Query{}
+
+	if err != nil {
+		return query, err
+	}
+
+	required := []string{}
+
+	for _, param := range params {
+		if param.In == "query" {
+			name := strings.ToLower(param.Name)
+
+			query[name] = &Query{
+				"type":        param.Type,
+				"description": param.Description,
+				"in":          param.In,
+			}
+
+			if param.Required {
+				required = append(required, name)
+			}
+		}
+	}
+
+	if len(required) > 0 {
+		query["required"] = required
+	}
+
+	return query, nil
+}
