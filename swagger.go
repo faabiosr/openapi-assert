@@ -191,16 +191,16 @@ func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
 		return headers, err
 	}
 
-	required := []string{}
+	required := Required{}
 
 	for _, param := range params {
 		if param.In == "header" {
 			name := strings.ToLower(param.Name)
 
-			headers[name] = &Headers{
-				"type":        param.Type,
-				"description": param.Description,
-				"in":          param.In,
+			headers[name] = &Param{
+				param.Type,
+				param.Description,
+				param.In,
 			}
 
 			if param.Required {
@@ -251,16 +251,16 @@ func (s *Swagger) RequestQuery(path, method string) (Query, error) {
 		return query, err
 	}
 
-	required := []string{}
+	required := Required{}
 
 	for _, param := range params {
 		if param.In == "query" {
 			name := strings.ToLower(param.Name)
 
-			query[name] = &Query{
-				"type":        param.Type,
-				"description": param.Description,
-				"in":          param.In,
+			query[name] = &Param{
+				param.Type,
+				param.Description,
+				param.In,
 			}
 
 			if param.Required {
