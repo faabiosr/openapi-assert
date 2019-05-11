@@ -6,7 +6,7 @@
 //  package main
 //
 //  import (
-//      assert "github.com/fabiorphp/openapi-assert"
+//      assert "github.com/faabiosr/openapi-assert"
 //      "log"
 //      "net/http"
 //  )
@@ -27,7 +27,7 @@
 //  package main
 //
 //  import (
-//      assert "github.com/fabiorphp/openapi-assert"
+//      assert "github.com/faabiosr/openapi-assert"
 //      "log"
 //      "net/http"
 //  )

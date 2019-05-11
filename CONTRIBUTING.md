@@ -14,9 +14,9 @@ Prerequisites:
 Clone `openapi-assert` from source into `$GOPATH`:
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/fabiorphp
-$ cd $GOPATH/src/github.com/fabiorphp
-$ git clone git@github.com:fabiorphp/openapi-assert.git
+$ mkdir -p $GOPATH/src/github.com/faabiosr
+$ cd $GOPATH/src/github.com/faabiosr
+$ git clone git@github.com:faabiosr/openapi-assert.git
 $ cd openapi-assert
 ```
 

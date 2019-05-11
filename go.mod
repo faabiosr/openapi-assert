@@ -1,4 +1,4 @@
-module github.com/fabiorphp/openapi-assert
+module github.com/faabiosr/openapi-assert
 
 require (
 	github.com/go-openapi/jsonpointer v0.17.0
