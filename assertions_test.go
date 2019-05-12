@@ -72,6 +72,14 @@ func (s *AssertionsTestSuite) TestRequestBody() {
 	s.assert.Nil(err)
 }
 
+func (s *AssertionsTestSuite) TestResponseBody() {
+	buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
+
+	err := s.assertions.ResponseBody(buf, "/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Nil(err)
+}
+
 func TestAssertionsTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertionsTestSuite))
 }

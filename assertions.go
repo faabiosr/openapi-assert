@@ -47,3 +47,8 @@ func (a *Assertions) RequestQuery(query url.Values, path, method string) error {
 func (a *Assertions) RequestBody(body io.Reader, path, method string) error {
 	return RequestBody(body, a.doc, path, method)
 }
+
+// ResponseBody asserts response body against a schema.
+func (a *Assertions) ResponseBody(body io.Reader, path, method string, statusCode int) error {
+	return ResponseBody(body, a.doc, path, method, statusCode)
+}

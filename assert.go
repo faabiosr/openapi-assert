@@ -36,6 +36,9 @@ var (
 
 	// ErrRequestBody shows the request body error format.
 	ErrRequestBody = `'%s' is a valid request body (%s)`
+
+	// ErrResponseBody shows the response body error format.
+	ErrResponseBody = `'%s' is a valid response body (%s)`
 )
 
 func failf(format string, a ...interface{}) error {
@@ -230,4 +233,40 @@ func RequestBody(body io.Reader, doc Document, path, method string) error {
 	}
 
 	return failf(ErrRequestBody, string(data), strings.Join(errorMessages, ", "))
+}
+
+// ResponseBody asserts response body against a schema.
+func ResponseBody(body io.Reader, doc Document, path, method string, statusCode int) error {
+	schema, err := doc.ResponseBody(path, method, statusCode)
+
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadAll(body)
+
+	if err != nil {
+		return err
+	}
+
+	result, err := gojsonschema.Validate(
+		gojsonschema.NewGoLoader(schema),
+		gojsonschema.NewBytesLoader(data),
+	)
+
+	if err != nil {
+		return errors.Wrap(err, ErrValidation)
+	}
+
+	if result.Valid() {
+		return nil
+	}
+
+	errorMessages := []string{}
+
+	for _, v := range result.Errors() {
+		errorMessages = append(errorMessages, v.Description())
+	}
+
+	return failf(ErrResponseBody, string(data), strings.Join(errorMessages, ", "))
 }

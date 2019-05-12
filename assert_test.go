@@ -132,6 +132,30 @@ func (s *AssertTestSuite) TestRequestBodyWithoutRequiredValues() {
 	s.assert.EqualError(err, failf(ErrRequestBody, "{}", "id is required, name is required, id is required, Must validate all the schemas (allOf)").Error())
 }
 
+func (s *AssertTestSuite) TestResponseBodyWithInvalidPath() {
+	buf := bytes.NewBufferString("{}")
+	err := ResponseBody(buf, s.doc, "/pet", http.MethodPost, http.StatusOK)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrResourceURI)
+}
+
+func (s *AssertTestSuite) TestResponseBodyWithInvalidData() {
+	buf := bytes.NewBufferString("")
+	err := ResponseBody(buf, s.doc, "/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrValidation)
+}
+
+func (s *AssertTestSuite) TestResponseBodyWithoutRequiredValues() {
+	buf := bytes.NewBufferString("{}")
+	err := ResponseBody(buf, s.doc, "/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.Error(err)
+	s.assert.EqualError(err, failf(ErrResponseBody, "{}", "Invalid type. Expected: array, given: object").Error())
+}
+
 func TestAssertTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertTestSuite))
 }
