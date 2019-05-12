@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/xeipuuv/gojsonschema"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -31,6 +33,9 @@ var (
 
 	// ErrJson wrap the json marshall errors
 	ErrJson = "unable to marshal"
+
+	// ErrRequestBody shows the request body error format.
+	ErrRequestBody = `'%s' is a valid request body (%s)`
 )
 
 func failf(format string, a ...interface{}) error {
@@ -189,4 +194,40 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 	}
 
 	return failf(ErrRequestQuery, string(data), strings.Join(errorMessages, ", "))
+}
+
+// RequestBody asserts request body against a schema.
+func RequestBody(body io.Reader, doc Document, path, method string) error {
+	schema, err := doc.RequestBody(path, method)
+
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadAll(body)
+
+	if err != nil {
+		return err
+	}
+
+	result, err := gojsonschema.Validate(
+		gojsonschema.NewGoLoader(schema),
+		gojsonschema.NewBytesLoader(data),
+	)
+
+	if err != nil {
+		return errors.Wrap(err, ErrValidation)
+	}
+
+	if result.Valid() {
+		return nil
+	}
+
+	errorMessages := []string{}
+
+	for _, v := range result.Errors() {
+		errorMessages = append(errorMessages, v.Description())
+	}
+
+	return failf(ErrRequestBody, string(data), strings.Join(errorMessages, ", "))
 }

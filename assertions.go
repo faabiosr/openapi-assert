@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -40,4 +41,9 @@ func (a *Assertions) ResponseHeaders(header http.Header, path, method string, st
 // RequestQuery asserts request query againt a schema query list.
 func (a *Assertions) RequestQuery(query url.Values, path, method string) error {
 	return RequestQuery(query, a.doc, path, method)
+}
+
+// RequestBody asserts request body against a schema.
+func (a *Assertions) RequestBody(body io.Reader, path, method string) error {
+	return RequestBody(body, a.doc, path, method)
 }

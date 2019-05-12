@@ -1,7 +1,7 @@
 package assert
 
 import (
-	"fmt"
+	"bytes"
 	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/url"
@@ -25,7 +25,7 @@ func (s *AssertTestSuite) TestRequestMediaTypeWithInvalidType() {
 	err := RequestMediaType("text/html", s.doc, "/api/food", http.MethodGet)
 
 	s.assert.Error(err)
-	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrMediaType, "text/html", "application/json")))
+	s.assert.EqualError(err, failf(ErrMediaType, "text/html", "application/json").Error())
 }
 
 func (s *AssertTestSuite) TestRequestMediaTypeWithValidType() {
@@ -45,7 +45,7 @@ func (s *AssertTestSuite) TestResponseMediaTypeWithInvalidType() {
 	err := ResponseMediaType("text/html", s.doc, "/api/food", http.MethodGet)
 
 	s.assert.Error(err)
-	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrMediaType, "text/html", "application/json")))
+	s.assert.EqualError(err, failf(ErrMediaType, "text/html", "application/json").Error())
 }
 
 func (s *AssertTestSuite) TestResponseMediaTypeWithValidType() {
@@ -69,7 +69,7 @@ func (s *AssertTestSuite) TestRequestHeaderWithoutRequiredValues() {
 	err := RequestHeaders(headers, s.doc, "/api/pets/1", http.MethodPatch)
 
 	s.assert.Error(err)
-	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrRequestHeaders, "{}", "x-required-header is required")))
+	s.assert.EqualError(err, failf(ErrRequestHeaders, "{}", "x-required-header is required").Error())
 }
 
 func (s *AssertTestSuite) TestResponseHeadersWithInvalidPath() {
@@ -87,7 +87,7 @@ func (s *AssertTestSuite) TestResponseHeaderWithoutRequiredValues() {
 	err := ResponseHeaders(headers, s.doc, "/api/pets", http.MethodGet, http.StatusOK)
 
 	s.assert.Error(err)
-	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrResponseHeaders, "{}", "etag is required")))
+	s.assert.EqualError(err, failf(ErrResponseHeaders, "{}", "etag is required").Error())
 }
 
 func (s *AssertTestSuite) TestRequestQueryWithInvalidPath() {
@@ -105,7 +105,31 @@ func (s *AssertTestSuite) TestRequestQueryWithoutRequiredValues() {
 	err := RequestQuery(query, s.doc, "/api/pets", http.MethodGet)
 
 	s.assert.Error(err)
-	s.assert.EqualError(err, fmt.Sprintf(FailMessage, fmt.Sprintf(ErrRequestQuery, "{}", "limit is required")))
+	s.assert.EqualError(err, failf(ErrRequestQuery, "{}", "limit is required").Error())
+}
+
+func (s *AssertTestSuite) TestRequestBodyWithInvalidPath() {
+	buf := bytes.NewBufferString("{}")
+	err := RequestBody(buf, s.doc, "/pet", http.MethodPost)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrResourceURI)
+}
+
+func (s *AssertTestSuite) TestRequestBodyWithInvalidData() {
+	buf := bytes.NewBufferString("")
+	err := RequestBody(buf, s.doc, "/api/pets", http.MethodPost)
+
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrValidation)
+}
+
+func (s *AssertTestSuite) TestRequestBodyWithoutRequiredValues() {
+	buf := bytes.NewBufferString("{}")
+	err := RequestBody(buf, s.doc, "/api/pets", http.MethodPost)
+
+	s.assert.Error(err)
+	s.assert.EqualError(err, failf(ErrRequestBody, "{}", "id is required, name is required, id is required, Must validate all the schemas (allOf)").Error())
 }
 
 func TestAssertTestSuite(t *testing.T) {

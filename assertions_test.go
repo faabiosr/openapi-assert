@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"bytes"
 	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/url"
@@ -59,6 +60,14 @@ func (s *AssertionsTestSuite) TestRequestQuery() {
 	query.Add("limit", "1")
 
 	err := s.assertions.RequestQuery(query, "/api/pets", http.MethodGet)
+
+	s.assert.Nil(err)
+}
+
+func (s *AssertionsTestSuite) TestRequestBody() {
+	buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
+
+	err := s.assertions.RequestBody(buf, "/api/pets", http.MethodPost)
 
 	s.assert.Nil(err)
 }
