@@ -39,5 +39,8 @@ type (
 
 		// RequestBody retrieves the request body.
 		RequestBody(path, method string) (Body, error)
+
+		// ResponseBody retrieves the response body.
+		ResponseBody(path, method string, statusCode int) (Body, error)
 	}
 )

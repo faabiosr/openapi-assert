@@ -295,3 +295,18 @@ func (s *Swagger) RequestBody(path, method string) (Body, error) {
 
 	return nil, errors.New(ErrBodyNotFound)
 }
+
+// ResponseBody retrieves the response body.
+func (s *Swagger) ResponseBody(path, method string, statusCode int) (Body, error) {
+	res, err := s.response(path, method, statusCode)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Schema != nil {
+		return Body(res.Schema), nil
+	}
+
+	return nil, errors.New(ErrBodyNotFound)
+}

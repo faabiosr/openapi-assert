@@ -177,6 +177,28 @@ func (s *SwaggerTestSuite) TestRequestBody() {
 	s.assert.NoError(err)
 }
 
+func (s *SwaggerTestSuite) TestResponseBodyWithInvalidPath() {
+	body, err := s.doc.ResponseBody("/some", http.MethodPost, http.StatusOK)
+
+	s.assert.Nil(body)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestResponseBodyWhenBodyNotExists() {
+	body, err := s.doc.ResponseBody("/api/food", http.MethodGet, http.StatusNotModified)
+
+	s.assert.Nil(body)
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrBodyNotFound)
+}
+
+func (s *SwaggerTestSuite) TestResponseBody() {
+	body, err := s.doc.ResponseBody("/api/pets", http.MethodGet, http.StatusOK)
+
+	s.assert.NotEmpty(body)
+	s.assert.NoError(err)
+}
+
 func TestSwaggerTestSuite(t *testing.T) {
 	suite.Run(t, new(SwaggerTestSuite))
 }
