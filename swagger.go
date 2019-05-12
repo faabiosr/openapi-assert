@@ -48,8 +48,8 @@ func LoadFromURI(uri string) (*Swagger, error) {
 	return &Swagger{doc.Spec()}, nil
 }
 
-// FindPath searches for an uri in document and returns the path.
-func (s *Swagger) FindPath(uri string) (string, error) {
+// findPath searches for an uri in document and returns the path.
+func (s *Swagger) findPath(uri string) (string, error) {
 	for path := range s.spec.Paths.Paths {
 		tmpl, err := uritemplate.New(s.spec.BasePath + path)
 
@@ -65,8 +65,8 @@ func (s *Swagger) FindPath(uri string) (string, error) {
 	return "", errors.New(ErrResourceURI)
 }
 
-// FindNode searches a node using segments in the schema.
-func (s *Swagger) FindNode(segments ...string) (interface{}, error) {
+// findNode searches a node using segments in the schema.
+func (s *Swagger) findNode(segments ...string) (interface{}, error) {
 	segments = append([]string{""}, segments...)
 
 	pointer, err := jsonpointer.New(strings.Join(segments, "/"))
@@ -85,14 +85,14 @@ func (s *Swagger) FindNode(segments ...string) (interface{}, error) {
 }
 
 func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
-	path, err := s.FindPath(path)
+	path, err := s.findPath(path)
 	method = strings.ToLower(method)
 
 	if err != nil {
 		return []string{}, err
 	}
 
-	data, err := s.FindNode("paths", path, method, segment)
+	data, err := s.findNode("paths", path, method, segment)
 
 	if err != nil {
 		return []string{}, err
@@ -108,7 +108,7 @@ func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
 		return types, nil
 	}
 
-	data, err = s.FindNode(segment)
+	data, err = s.findNode(segment)
 
 	if err != nil {
 		return []string{}, err
@@ -132,7 +132,7 @@ func (s *Swagger) ResponseMediaTypes(path, method string) ([]string, error) {
 }
 
 func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, error) {
-	path, err := s.FindPath(path)
+	path, err := s.findPath(path)
 	method = strings.ToLower(method)
 
 	params := []spec.Parameter{}
@@ -141,13 +141,13 @@ func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, erro
 		return params, err
 	}
 
-	data, _ := s.FindNode("paths", path, "parameters")
+	data, _ := s.findNode("paths", path, "parameters")
 
 	if data != nil {
 		params = append(params, data.([]spec.Parameter)...)
 	}
 
-	data, _ = s.FindNode("paths", path, method, "parameters")
+	data, _ = s.findNode("paths", path, method, "parameters")
 
 	if data != nil {
 		params = append(params, data.([]spec.Parameter)...)
@@ -157,7 +157,7 @@ func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, erro
 }
 
 func (s *Swagger) response(path, method string, statusCode int) (spec.Response, error) {
-	path, err := s.FindPath(path)
+	path, err := s.findPath(path)
 	method = strings.ToLower(method)
 
 	var res spec.Response
@@ -166,13 +166,13 @@ func (s *Swagger) response(path, method string, statusCode int) (spec.Response, 
 		return res, err
 	}
 
-	data, err := s.FindNode("paths", path, method, "responses", strconv.Itoa(statusCode))
+	data, err := s.findNode("paths", path, method, "responses", strconv.Itoa(statusCode))
 
 	if data != nil && err == nil {
 		return data.(spec.Response), nil
 	}
 
-	data, err = s.FindNode("paths", path, method, "responses", "default")
+	data, err = s.findNode("paths", path, method, "responses", "default")
 
 	if err != nil {
 		return res, err

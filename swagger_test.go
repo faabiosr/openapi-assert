@@ -39,41 +39,11 @@ func (s *SwaggerTestSuite) TestLoadFromUri() {
 func (s *SwaggerTestSuite) TestFindPathWithBrokenDocument() {
 	doc, _ := LoadFromURI("./fixtures/invalid-path.json")
 
-	path, err := doc.FindPath("/api/food/a")
+	path, err := doc.findPath("/api/food/a")
 
 	s.assert.Empty(path)
 	s.assert.Error(err)
 	s.assert.Contains(err.Error(), ErrResourceURI)
-}
-
-func (s *SwaggerTestSuite) TestFindPathWithInvalidPath() {
-	path, err := s.doc.FindPath("/some")
-
-	s.assert.Empty(path)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrResourceURI)
-}
-
-func (s *SwaggerTestSuite) TestFindPath() {
-	path, err := s.doc.FindPath("/api/pets")
-
-	s.assert.NotEmpty(path)
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestFindNodeWithoutSegment() {
-	node, err := s.doc.FindNode("")
-
-	s.assert.Empty(node)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrNodeNotFound)
-}
-
-func (s *SwaggerTestSuite) TestFindNode() {
-	node, err := s.doc.FindNode("paths")
-
-	s.assert.NotEmpty(node)
-	s.assert.NoError(err)
 }
 
 func (s *SwaggerTestSuite) TestRequestMediaTypesWithInvalidPath() {
