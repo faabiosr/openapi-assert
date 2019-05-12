@@ -3,6 +3,7 @@ package assert
 import (
 	"bytes"
 	"github.com/stretchr/testify/suite"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"testing"
@@ -87,6 +88,24 @@ func (s *AssertionsTestSuite) TestRequest() {
 	req.Header.Add("Content-Type", "application/json")
 
 	s.assert.Nil(s.assertions.Request(req))
+}
+
+func (s *AssertionsTestSuite) TestResponse() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
+
+	buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
+
+	res := &http.Response{
+		StatusCode: http.StatusOK,
+		Request:    req,
+		Header: map[string][]string{
+			"Content-Type": {"application/json"},
+			"etag":         {"value"},
+		},
+		Body: ioutil.NopCloser(buf),
+	}
+
+	s.assert.Nil(s.assertions.Response(res))
 }
 
 func TestAssertionsTestSuite(t *testing.T) {

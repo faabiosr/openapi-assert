@@ -3,6 +3,7 @@ package assert
 import (
 	"bytes"
 	"github.com/stretchr/testify/suite"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"testing"
@@ -182,6 +183,51 @@ func (s *AssertTestSuite) TestRequestWithoutRequiredBody() {
 	req.Header.Add("Content-Type", "application/json")
 
 	s.assert.Error(Request(req, s.doc))
+}
+
+func (s *AssertTestSuite) TestResponseWithoutRequiredHeaders() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
+
+	res := &http.Response{
+		StatusCode: http.StatusOK,
+		Request:    req,
+	}
+
+	s.assert.Error(Response(res, s.doc))
+}
+
+func (s *AssertTestSuite) TestResponseWithoutRequiredMediaType() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/food", nil)
+
+	buf := bytes.NewBufferString("{}")
+
+	res := &http.Response{
+		Request: req,
+		Header: map[string][]string{
+			"Content-Type": {"text/html"},
+		},
+		Body: ioutil.NopCloser(buf),
+	}
+
+	s.assert.Error(Response(res, s.doc))
+}
+
+func (s *AssertTestSuite) TestResponseWithoutRequiredBody() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
+
+	buf := bytes.NewBufferString("{}")
+
+	res := &http.Response{
+		StatusCode: http.StatusOK,
+		Request:    req,
+		Header: map[string][]string{
+			"Content-Type": {"application/json"},
+			"etag":         {"value"},
+		},
+		Body: ioutil.NopCloser(buf),
+	}
+
+	s.assert.Error(Response(res, s.doc))
 }
 
 func TestAssertTestSuite(t *testing.T) {

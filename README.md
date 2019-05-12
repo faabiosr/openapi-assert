@@ -112,6 +112,36 @@ func main() {
 }
 ```
 
+If you want to assert http response, see below:
+
+```go
+package main
+
+import (
+	assert "github.com/faabiosr/openapi-assert"
+	"log"
+	"net/http"
+)
+
+func main() {
+	doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	assert := assert.New(doc)
+
+	res, err := http.Get("https://petstore.swagger.io/v2/pet/111111422")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(assert.Response(res))
+}
+```
+
 
 ## Development
 

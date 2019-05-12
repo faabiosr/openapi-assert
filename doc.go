@@ -67,6 +67,8 @@
 //          log.Fatal(err)
 //      }
 //
+//      assert := assert.New(doc)
+//
 //      http.HandleFunc("/v2/pet", func(w http.ResponseWriter, r *http.Request) {
 //          err := assert.Request(r)
 //
@@ -76,5 +78,32 @@
 //      log.Fatal(
 //          http.ListenAndServer("127.0.0.1:9000", nil),
 //      )
+//  }
+//
+// If you want to assert http response:
+//  package main
+//
+//  import (
+//      assert "github.com/faabiosr/openapi-assert"
+//      "log"
+//      "net/http"
+//  )
+//
+//  func main() {
+//      doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
+//
+//      if err != nil {
+//          log.Fatal(err)
+//      }
+//
+//      assert := assert.New(doc)
+//
+//      res, err := http.Get("https://petstore.swagger.io/v2/pet/111111422")
+//
+//      if err != nil {
+//          log.Fatal(err)
+//      }
+//
+//      log.Println(assert.Response(res))
 //  }
 package assert

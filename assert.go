@@ -295,3 +295,25 @@ func Request(req *http.Request, doc Document) error {
 
 	return nil
 }
+
+// Response asserts http response against a schema.
+func Response(res *http.Response, doc Document) error {
+
+	path := res.Request.URL.Path
+	method := res.Request.Method
+	statusCode := res.StatusCode
+
+	if err := ResponseHeaders(res.Header, doc, path, method, statusCode); err != nil {
+		return err
+	}
+
+	if err := ResponseMediaType(res.Header.Get("content-type"), doc, path, method); err != nil && res.Body != nil {
+		return err
+	}
+
+	if err := ResponseBody(res.Body, doc, path, method, statusCode); err != nil {
+		return err
+	}
+
+	return nil
+}
