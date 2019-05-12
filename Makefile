@@ -13,6 +13,7 @@ configure:
 # Run tests and generates html coverage file
 cover: test
 	@go tool cover -html=./coverage.text -o ./coverage.html
+	@test -f ./coverage.text && rm ./coverage.text;
 .PHONY: cover
 
 # Format all go files
