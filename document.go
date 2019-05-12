@@ -14,6 +14,9 @@ type (
 		In          string
 	}
 
+	// Body is a document schema in json format.
+	Body interface{}
+
 	// Required is a list of required parameters.
 	Required []string
 
@@ -35,6 +38,6 @@ type (
 		RequestQuery(path, method string) (Query, error)
 
 		// RequestBody retrieves the request body.
-		RequestBody(path, method string) (interface{}, error)
+		RequestBody(path, method string) (Body, error)
 	}
 )

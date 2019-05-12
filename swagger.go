@@ -280,7 +280,7 @@ func (s *Swagger) RequestQuery(path, method string) (Query, error) {
 }
 
 // RequestBody retrieves the request body.
-func (s *Swagger) RequestBody(path, method string) (interface{}, error) {
+func (s *Swagger) RequestBody(path, method string) (Body, error) {
 	params, err := s.requestParameters(path, method)
 
 	if err != nil {
@@ -289,7 +289,7 @@ func (s *Swagger) RequestBody(path, method string) (interface{}, error) {
 
 	for _, param := range params {
 		if param.In == "body" {
-			return param.Schema, nil
+			return Body(param.Schema), nil
 		}
 	}
 
