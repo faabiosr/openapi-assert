@@ -155,6 +155,28 @@ func (s *SwaggerTestSuite) TestRequestQueryRetrievesNoQuery() {
 	s.assert.NoError(err)
 }
 
+func (s *SwaggerTestSuite) TestRequestBodyWithInvalidPath() {
+	body, err := s.doc.RequestBody("/some", http.MethodPost)
+
+	s.assert.Nil(body)
+	s.assert.Error(err)
+}
+
+func (s *SwaggerTestSuite) TestRequestBodyWhenBodyNotExists() {
+	body, err := s.doc.RequestBody("/api/pets", http.MethodGet)
+
+	s.assert.Nil(body)
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrBodyNotFound)
+}
+
+func (s *SwaggerTestSuite) TestRequestBody() {
+	body, err := s.doc.RequestBody("/api/pets", http.MethodPost)
+
+	s.assert.NotEmpty(body)
+	s.assert.NoError(err)
+}
+
 func TestSwaggerTestSuite(t *testing.T) {
 	suite.Run(t, new(SwaggerTestSuite))
 }

@@ -33,5 +33,8 @@ type (
 
 		// RequestQuery retrieves a list of request query.
 		RequestQuery(path, method string) (Query, error)
+
+		// RequestBody retrieves the request body.
+		RequestBody(path, method string) (interface{}, error)
 	}
 )

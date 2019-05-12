@@ -22,6 +22,9 @@ var (
 
 	// ErrNodeNotFound returns an error when node does not exists.
 	ErrNodeNotFound = "node does not exists"
+
+	// ErrBodyNotFound returns an error when body does not exists.
+	ErrBodyNotFound = "body does not exists"
 )
 
 type (
@@ -274,4 +277,21 @@ func (s *Swagger) RequestQuery(path, method string) (Query, error) {
 	}
 
 	return query, nil
+}
+
+// RequestBody retrieves the request body.
+func (s *Swagger) RequestBody(path, method string) (interface{}, error) {
+	params, err := s.requestParameters(path, method)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, param := range params {
+		if param.In == "body" {
+			return param.Schema, nil
+		}
+	}
+
+	return nil, errors.New(ErrBodyNotFound)
 }
