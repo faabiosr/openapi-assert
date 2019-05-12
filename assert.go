@@ -33,8 +33,8 @@ var (
 	ErrJson = "unable to marshal"
 )
 
-func fail(msg string) error {
-	return fmt.Errorf(FailMessage, msg)
+func failf(format string, a ...interface{}) error {
+	return fmt.Errorf(FailMessage, fmt.Sprintf(format, a...))
 }
 
 // RequestMediaType asserts request media type against a list.
@@ -51,7 +51,7 @@ func RequestMediaType(mediaType string, doc Document, path, method string) error
 		}
 	}
 
-	return fail(fmt.Sprintf(ErrMediaType, mediaType, strings.Join(types, ", ")))
+	return failf(ErrMediaType, mediaType, strings.Join(types, ", "))
 }
 
 // ResponseMediaType asserts response media type against a list.
@@ -68,7 +68,7 @@ func ResponseMediaType(mediaType string, doc Document, path, method string) erro
 		}
 	}
 
-	return fail(fmt.Sprintf(ErrMediaType, mediaType, strings.Join(types, ", ")))
+	return failf(ErrMediaType, mediaType, strings.Join(types, ", "))
 }
 
 // RequestHeaders asserts rquest headers againt a schema header list.
@@ -110,9 +110,7 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 		errorMessages = append(errorMessages, v.Description())
 	}
 
-	return fail(
-		fmt.Sprintf(ErrRequestHeaders, string(data), strings.Join(errorMessages, ", ")),
-	)
+	return failf(ErrRequestHeaders, string(data), strings.Join(errorMessages, ", "))
 }
 
 // ResponseHeaders asserts response headers againt a schema header list.
@@ -154,9 +152,7 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 		errorMessages = append(errorMessages, v.Description())
 	}
 
-	return fail(
-		fmt.Sprintf(ErrResponseHeaders, string(data), strings.Join(errorMessages, ", ")),
-	)
+	return failf(ErrResponseHeaders, string(data), strings.Join(errorMessages, ", "))
 }
 
 // RequestQuery asserts request query againt a schema.
@@ -192,7 +188,5 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 		errorMessages = append(errorMessages, v.Description())
 	}
 
-	return fail(
-		fmt.Sprintf(ErrRequestQuery, string(data), strings.Join(errorMessages, ", ")),
-	)
+	return failf(ErrRequestQuery, string(data), strings.Join(errorMessages, ", "))
 }
