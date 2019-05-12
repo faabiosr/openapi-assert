@@ -62,11 +62,12 @@ import (
 
 func main() {
     doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
-    assert := assert.New(doc)
 
     if err != nil {
         log.Fatal(err)
     }
+
+    assert := assert.New(doc)
 
     log.Println(
         assert.RequestMediaType("text/html", "/pet", http.MethodPost),
@@ -75,6 +76,39 @@ func main() {
     log.Println(
         assert.RequestMediaType("image/gif", "/v2/pet", http.MethodPost),
     )
+}
+```
+
+If you want to assert http request, see below:
+
+```go
+package main
+
+import (
+	"fmt"
+	assert "github.com/faabiosr/openapi-assert"
+	"log"
+	"net/http"
+)
+
+func main() {
+	doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	assert := assert.New(doc)
+
+	http.HandleFunc("/v2/pet", func(w http.ResponseWriter, r *http.Request) {
+		err := assert.Request(r)
+
+		fmt.Fprint(w, err)
+	})
+
+	log.Fatal(
+		http.ListenAndServe("127.0.0.1:9000", nil),
+	)
 }
 ```
 

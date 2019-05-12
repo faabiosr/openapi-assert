@@ -80,6 +80,15 @@ func (s *AssertionsTestSuite) TestResponseBody() {
 	s.assert.Nil(err)
 }
 
+func (s *AssertionsTestSuite) TestRequest() {
+	buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/pets", buf)
+	req.Header.Add("Content-Type", "application/json")
+
+	s.assert.Nil(s.assertions.Request(req))
+}
+
 func TestAssertionsTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertionsTestSuite))
 }

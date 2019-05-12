@@ -52,3 +52,8 @@ func (a *Assertions) RequestBody(body io.Reader, path, method string) error {
 func (a *Assertions) ResponseBody(body io.Reader, path, method string, statusCode int) error {
 	return ResponseBody(body, a.doc, path, method, statusCode)
 }
+
+// Requery asserts http request against a schema.
+func (a *Assertions) Request(req *http.Request) error {
+	return Request(req, a.doc)
+}

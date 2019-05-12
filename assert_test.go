@@ -156,6 +156,34 @@ func (s *AssertTestSuite) TestResponseBodyWithoutRequiredValues() {
 	s.assert.EqualError(err, failf(ErrResponseBody, "{}", "Invalid type. Expected: array, given: object").Error())
 }
 
+func (s *AssertTestSuite) TestRequestWithoutRequiredHeaders() {
+	req, _ := http.NewRequest(http.MethodPatch, "/api/pets/1", nil)
+
+	s.assert.Error(Request(req, s.doc))
+}
+
+func (s *AssertTestSuite) TestRequestWithoutRequiredMediaType() {
+	buf := bytes.NewBufferString("{}")
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/food", buf)
+	req.Header.Add("Content-Type", "text/html")
+
+	s.assert.Error(Request(req, s.doc))
+}
+
+func (s *AssertTestSuite) TestRequestWithoutRequiredQuery() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
+
+	s.assert.Error(Request(req, s.doc))
+}
+
+func (s *AssertTestSuite) TestRequestWithoutRequiredBody() {
+	req, _ := http.NewRequest(http.MethodPost, "/api/pets", bytes.NewBufferString("{}"))
+	req.Header.Add("Content-Type", "application/json")
+
+	s.assert.Error(Request(req, s.doc))
+}
+
 func TestAssertTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertTestSuite))
 }

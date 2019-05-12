@@ -270,3 +270,28 @@ func ResponseBody(body io.Reader, doc Document, path, method string, statusCode 
 
 	return failf(ErrResponseBody, string(data), strings.Join(errorMessages, ", "))
 }
+
+// Requery asserts http request against a schema.
+func Request(req *http.Request, doc Document) error {
+
+	path := req.URL.String()
+	method := req.Method
+
+	if err := RequestHeaders(req.Header, doc, path, method); err != nil {
+		return err
+	}
+
+	if err := RequestMediaType(req.Header.Get("content-type"), doc, path, method); err != nil && req.Body != nil {
+		return err
+	}
+
+	if err := RequestQuery(req.URL.Query(), doc, path, method); err != nil {
+		return err
+	}
+
+	if err := RequestBody(req.Body, doc, path, method); err != nil {
+		return err
+	}
+
+	return nil
+}
