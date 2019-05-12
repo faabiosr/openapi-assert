@@ -126,12 +126,12 @@ func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
 
 // RequestMediaTypes retrives a list of request media types allowed.
 func (s *Swagger) RequestMediaTypes(path, method string) ([]string, error) {
-	return s.mediaTypes(path, method, "produces")
+	return s.mediaTypes(path, method, "consumes")
 }
 
 // ResponseMediaTypes retrives a list of response media types allowed.
 func (s *Swagger) ResponseMediaTypes(path, method string) ([]string, error) {
-	return s.mediaTypes(path, method, "consumes")
+	return s.mediaTypes(path, method, "produces")
 }
 
 func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, error) {

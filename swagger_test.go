@@ -56,7 +56,7 @@ func (s *SwaggerTestSuite) TestRequestMediaTypesWithInvalidPath() {
 func (s *SwaggerTestSuite) TestRequestMediaTypes() {
 	types, err := s.doc.RequestMediaTypes("/api/pets", http.MethodGet)
 
-	s.assert.Len(types, 4)
+	s.assert.Len(types, 1)
 	s.assert.Nil(err)
 }
 
@@ -77,7 +77,7 @@ func (s *SwaggerTestSuite) TestResponseMediaTypesWithInvalidPath() {
 func (s *SwaggerTestSuite) TestResponseMediaTypes() {
 	types, err := s.doc.ResponseMediaTypes("/api/pets/1", http.MethodPatch)
 
-	s.assert.Len(types, 2)
+	s.assert.Len(types, 1)
 	s.assert.Nil(err)
 }
 
