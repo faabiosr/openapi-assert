@@ -151,6 +151,9 @@ func main() {
 }
 ```
 
+## Examples
+* Simple example with [Echo Framework](https://github.com/faabiosr/openapi-assert/blob/master/_examples/echo/main.go)
+
 
 ## Development
 

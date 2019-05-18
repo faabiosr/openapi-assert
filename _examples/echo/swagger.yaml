@@ -1,0 +1,55 @@
+swagger: '2.0'
+info:
+  version: 0.2.0
+  title: My API
+  description: My services
+consumes:
+  - application/json
+produces:
+  - application/json
+schemes:
+  - http
+paths:
+  /user:
+    post:
+      summary: Create user
+      description: This endpoint is used to create a new user
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: User data
+          schema:
+            $ref: '#/definitions/UserCreation'
+      responses:
+        '201':
+          description: User created
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+        '400':
+          description: Bad request (Data validation)
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+definitions:
+  UserCreation:
+    type: object
+    properties:
+      name:
+        type: string
+        minLength: 3
+        maxLength: 80
+        description: User name
+      email:
+        type: string
+        description: User email
+        format: email
+    required:
+      - name
+      - email
+  ResponseMessage:
+    type: object
+    properties:
+      message:
+        type: string
