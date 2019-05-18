@@ -1,4 +1,4 @@
-// Package assert provides methods that allow you to write simple swagger validations.
+// Package assert provides methods that allow you to assert raw data using swagger files.
 //
 // Example Usage
 //
@@ -23,7 +23,7 @@
 //      )
 //  }
 //
-// If you want to assert many times, see below:
+// If you want to assert data many times, it is recommended to create instance of assert:
 //  package main
 //
 //  import (
@@ -50,7 +50,7 @@
 //      )
 //  }
 //
-// If you want to assert http request:
+// Asserting http request object using the swagger schema file:
 //  package main
 //
 //  import (
@@ -80,7 +80,7 @@
 //      )
 //  }
 //
-// If you want to assert http response:
+// Asserting http response object using the swagger schema file:
 //  package main
 //
 //  import (
@@ -96,7 +96,7 @@
 //          log.Fatal(err)
 //      }
 //
-//      assert := assert.New(doc)
+//      assert := assert.New(doc
 //
 //      res, err := http.Get("https://petstore.swagger.io/v2/pet/111111422")
 //

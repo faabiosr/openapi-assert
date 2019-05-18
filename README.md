@@ -6,24 +6,33 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/faabiosr/openapi-assert?style=flat-square)](https://goreportcard.com/report/github.com/faabiosr/openapi-assert)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/faabiosr/openapi-assert/blob/master/LICENSE)
 
-Asserting data against OpenAPI docs. This project is inspired by [PHP Swagger Assertions](https://github.com/Maks3w/SwaggerAssertions).
+## Description
+
+openapi-assert is a Go package that provides a affordable way to validate http requests and responses data throught OpenAPI Schema Specification (Swagger) and the project was inspired by [PHP Swagger Assertions](https://github.com/Maks3w/SwaggerAssertions). It has the following features:
+
+* Assert request and response media types
+* Assert request and response headers
+* Assert request query strings
+* Assert request and response body.
+* Assert the entire http request and response object.
+
+## Requirements
+OpenAPI Assert requires Go 1.11 or later.
 
 ## Instalation
 
-OpenAPI Assert requires Go 1.11 or later.
-
+Use go get.
 ```sh
 $ go get github.com/faabiosr/openapi-assert
 ```
 
-If you want to get an specific version, please use the example below:
-
+Then import the package into your own code:
 ```
-go get gopkg.in/faabiosr/openapi-assert.v0
+import "github.com/faabiosr/openapi-assert"
 ```
 
 ## Usage
-The package provides methods that allow you to write simple swagger validations.
+The package provides methods that allow you to assert raw data using swagger files.
 
 See it in action:
 
@@ -49,7 +58,7 @@ func main() {
 }
 ```
 
-If you want to assert many times, see below:
+If you want to assert data many times, it is recommended to create instance of assert:
 
 ```go
 package main
@@ -79,7 +88,7 @@ func main() {
 }
 ```
 
-If you want to assert http request, see below:
+Asserting http request object using the swagger schema file:
 
 ```go
 package main
@@ -112,7 +121,7 @@ func main() {
 }
 ```
 
-If you want to assert http response, see below:
+Asserting http request object using the swagger schema file:
 
 ```go
 package main
