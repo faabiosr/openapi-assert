@@ -185,6 +185,20 @@ func (s *AssertTestSuite) TestRequestWithoutRequiredBody() {
 	s.assert.Error(Request(req, s.doc))
 }
 
+func (s *AssertTestSuite) TestRequestReadBodyAfterValidation() {
+	buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
+
+	req, _ := http.NewRequest(http.MethodPost, "/api/pets", buf)
+	req.Header.Add("Content-Type", "application/json")
+
+	s.assert.Nil(Request(req, s.doc))
+
+	body, err := ioutil.ReadAll(req.Body)
+
+	s.assert.NotEmpty(body)
+	s.assert.NoError(err)
+}
+
 func (s *AssertTestSuite) TestResponseWithoutRequiredHeaders() {
 	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
 

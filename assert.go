@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
@@ -289,7 +290,11 @@ func Request(req *http.Request, doc Document) error {
 		return err
 	}
 
-	if err := RequestBody(req.Body, doc, path, method); err != nil {
+	buf := bytes.NewBuffer(make([]byte, 0))
+	reader := io.TeeReader(req.Body, buf)
+	req.Body = ioutil.NopCloser(buf)
+
+	if err := RequestBody(reader, doc, path, method); err != nil {
 		return err
 	}
 
