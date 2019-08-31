@@ -244,6 +244,29 @@ func (s *AssertTestSuite) TestResponseWithoutRequiredBody() {
 	s.assert.Error(Response(res, s.doc))
 }
 
+func (s *AssertTestSuite) TestResponseReadBodyAfterValidation() {
+	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
+
+	buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
+
+	res := &http.Response{
+		StatusCode: http.StatusOK,
+		Request:    req,
+		Header: map[string][]string{
+			"Content-Type": {"application/json"},
+			"etag":         {"value"},
+		},
+		Body: ioutil.NopCloser(buf),
+	}
+
+	s.assert.NoError(Response(res, s.doc))
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	s.assert.NotEmpty(body)
+	s.assert.NoError(err)
+}
+
 func TestAssertTestSuite(t *testing.T) {
 	suite.Run(t, new(AssertTestSuite))
 }

@@ -316,7 +316,11 @@ func Response(res *http.Response, doc Document) error {
 		return err
 	}
 
-	if err := ResponseBody(res.Body, doc, path, method, statusCode); err != nil {
+	buf := bytes.NewBuffer(make([]byte, 0))
+	reader := io.TeeReader(res.Body, buf)
+	res.Body = ioutil.NopCloser(buf)
+
+	if err := ResponseBody(reader, doc, path, method, statusCode); err != nil {
 		return err
 	}
 
