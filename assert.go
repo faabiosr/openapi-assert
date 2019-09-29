@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/xeipuuv/gojsonschema"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 var (
@@ -274,7 +275,6 @@ func ResponseBody(body io.Reader, doc Document, path, method string, statusCode 
 
 // Requery asserts http request against a schema.
 func Request(req *http.Request, doc Document) error {
-
 	path := req.URL.String()
 	method := req.Method
 
@@ -294,7 +294,13 @@ func Request(req *http.Request, doc Document) error {
 	reader := io.TeeReader(req.Body, buf)
 	req.Body = ioutil.NopCloser(buf)
 
-	if err := RequestBody(reader, doc, path, method); err != nil {
+	err := RequestBody(reader, doc, path, method)
+
+	if err != nil && err.Error() == ErrBodyNotFound {
+		return nil
+	}
+
+	if err != nil {
 		return err
 	}
 

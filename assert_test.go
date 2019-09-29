@@ -2,11 +2,12 @@ package assert
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/suite"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type (
@@ -183,6 +184,15 @@ func (s *AssertTestSuite) TestRequestWithoutRequiredBody() {
 	req.Header.Add("Content-Type", "application/json")
 
 	s.assert.Error(Request(req, s.doc))
+}
+
+func (s *AssertTestSuite) TestRequestWithoutBody() {
+	buf := bytes.NewBufferString("{}")
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/food", buf)
+	req.Header.Add("Content-Type", "application/json")
+
+	s.assert.NoError(Request(req, s.doc))
 }
 
 func (s *AssertTestSuite) TestRequestReadBodyAfterValidation() {

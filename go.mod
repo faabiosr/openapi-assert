@@ -13,3 +13,5 @@ require (
 	github.com/xeipuuv/gojsonschema v0.0.0-20181016150526-f3a9dae5b194
 	github.com/yosida95/uritemplate v0.0.0-20170413134207-5c22f358020b
 )
+
+go 1.11
