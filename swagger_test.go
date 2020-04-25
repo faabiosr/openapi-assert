@@ -1,9 +1,12 @@
 package assert
 
 import (
-	"github.com/stretchr/testify/suite"
 	"net/http"
+	"os"
+	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type (
@@ -30,6 +33,32 @@ func (s *SwaggerTestSuite) TestLoadFromUriWithInvalidFile() {
 
 func (s *SwaggerTestSuite) TestLoadFromUri() {
 	doc, err := LoadFromURI(s.filePath)
+
+	s.assert.IsType(&Swagger{}, doc)
+	s.assert.Implements(new(Document), doc)
+	s.assert.NoError(err)
+}
+
+func (s *SwaggerTestSuite) TestLoadFromReaderWithInvalidContent() {
+	doc, err := LoadFromReader(strings.NewReader("{"))
+
+	s.assert.Nil(doc)
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrSwaggerLoad)
+}
+
+func (s *SwaggerTestSuite) TestLoadFromReaderWithInvalidFile() {
+	f, _ := os.Open("./fixtures/invalid-doc.json")
+	doc, err := LoadFromReader(f)
+
+	s.assert.Nil(doc)
+	s.assert.Error(err)
+	s.assert.Contains(err.Error(), ErrSwaggerExpand)
+}
+
+func (s *SwaggerTestSuite) TestLoadFromReader() {
+	f, _ := os.Open(s.filePath)
+	doc, err := LoadFromReader(f)
 
 	s.assert.IsType(&Swagger{}, doc)
 	s.assert.Implements(new(Document), doc)

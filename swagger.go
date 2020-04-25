@@ -1,13 +1,16 @@
 package assert
 
 import (
+	"io"
+	"io/ioutil"
+	"strconv"
+	"strings"
+
 	"github.com/go-openapi/jsonpointer"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 	"github.com/pkg/errors"
 	"github.com/yosida95/uritemplate"
-	"strconv"
-	"strings"
 )
 
 var (
@@ -37,6 +40,29 @@ type (
 // LoadFromURI loads and expands swagger document by uri.
 func LoadFromURI(uri string) (*Swagger, error) {
 	doc, err := loads.Spec(uri)
+
+	if err != nil {
+		return nil, errors.Wrap(err, ErrSwaggerLoad)
+	}
+
+	doc, err = doc.Expanded()
+
+	if err != nil {
+		return nil, errors.Wrap(err, ErrSwaggerExpand)
+	}
+
+	return &Swagger{doc.Spec()}, nil
+}
+
+// LoadFromReader loads and expand swagger document from io.Reader.
+func LoadFromReader(r io.Reader) (*Swagger, error) {
+	data, err := ioutil.ReadAll(r)
+
+	if err != nil {
+		return nil, errors.Wrap(err, ErrSwaggerLoad)
+	}
+
+	doc, err := loads.Analyzed(data, "")
 
 	if err != nil {
 		return nil, errors.Wrap(err, ErrSwaggerLoad)
