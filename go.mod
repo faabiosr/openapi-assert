@@ -1,17 +1,14 @@
 module github.com/faabiosr/openapi-assert
 
+go 1.11
+
 require (
-	github.com/go-openapi/jsonpointer v0.17.0
-	github.com/go-openapi/loads v0.17.0
-	github.com/go-openapi/spec v0.17.0
-	github.com/labstack/echo v3.3.10+incompatible
-	github.com/labstack/echo/v4 v4.1.10
-	github.com/pkg/errors v0.8.0
-	github.com/stretchr/testify v1.4.0
-	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
-	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/xeipuuv/gojsonschema v0.0.0-20181016150526-f3a9dae5b194
+	github.com/go-openapi/jsonpointer v0.19.3
+	github.com/go-openapi/loads v0.19.5
+	github.com/go-openapi/spec v0.19.7
+	github.com/labstack/echo/v4 v4.1.16
+	github.com/pkg/errors v0.9.1
+	github.com/stretchr/testify v1.5.1
+	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/yosida95/uritemplate v0.0.0-20170413134207-5c22f358020b
 )
-
-go 1.11
