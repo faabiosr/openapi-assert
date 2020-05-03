@@ -154,7 +154,6 @@ func TestAssertRequestQuery(t *testing.T) {
 	type tt struct {
 		path   string
 		method string
-		query  url.Values
 		err    string
 	}
 

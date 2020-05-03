@@ -33,8 +33,8 @@ var (
 	// ErrValidation wrap the json schema validation errors
 	ErrValidation = "unable to load the validation"
 
-	// ErrJson wrap the json marshall errors
-	ErrJson = "unable to marshal"
+	// ErrJSON wrap the json marshall errors
+	ErrJSON = "unable to marshal"
 
 	// ErrRequestBody shows the request body error format.
 	ErrRequestBody = `'%s' is a valid request body (%s)`
@@ -111,7 +111,7 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 	data, err := json.Marshal(headers)
 
 	if err != nil {
-		return errors.Wrap(err, ErrJson)
+		return errors.Wrap(err, ErrJSON)
 	}
 
 	errorMessages := []string{}
@@ -153,7 +153,7 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 	data, err := json.Marshal(headers)
 
 	if err != nil {
-		return errors.Wrap(err, ErrJson)
+		return errors.Wrap(err, ErrJSON)
 	}
 
 	errorMessages := []string{}
@@ -189,7 +189,7 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 	data, err := json.Marshal(query)
 
 	if err != nil {
-		return errors.Wrap(err, ErrJson)
+		return errors.Wrap(err, ErrJSON)
 	}
 
 	errorMessages := []string{}
@@ -273,7 +273,7 @@ func ResponseBody(body io.Reader, doc Document, path, method string, statusCode 
 	return failf(ErrResponseBody, string(data), strings.Join(errorMessages, ", "))
 }
 
-// Requery asserts http request against a schema.
+// Request asserts http request against a schema.
 func Request(req *http.Request, doc Document) error {
 	path := req.URL.String()
 	method := req.Method

@@ -160,6 +160,7 @@ func main() {
 ### Requirements
 
 - Install [Go](https://golang.org)
+- Install [GolangCI-Lint](https://github.com/golangci/golangci-lint#install) - Linter
 
 ### Makefile
 ```sh
@@ -174,6 +175,9 @@ $ make cover
 
 # Format all go files
 $ make fmt
+
+# GolangCI-Lint
+$ make lint
 
 # Run tests
 $make test

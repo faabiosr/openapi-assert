@@ -1,0 +1,15 @@
+[run]
+timeout = "120s"
+
+[output]
+format = "colored-line-number"
+
+[linters]
+enable = [
+    "gocyclo", "unconvert", "goimports", "unused", "varcheck", "vetshadow",
+    "misspell", "nakedret", "errcheck", "golint", "ineffassign", "deadcode",
+    "goconst", "vet", "unparam", "gofmt", "interfacer", "nestif", "godot"
+]
+
+[issues]
+exclude-use-default = false
