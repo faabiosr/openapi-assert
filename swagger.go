@@ -14,17 +14,8 @@ import (
 )
 
 const (
-	// ErrResourceURI returns an error when uri does not match.
-	ErrResourceURI = err("resource uri does not match")
-
 	// ErrSwaggerLoad returns an error when load swagger document.
 	ErrSwaggerLoad = err("unable to load the document by uri")
-
-	// ErrSwaggerExpand returns an error of expanding schema.
-	ErrSwaggerExpand = err("unable to expand the document")
-
-	// ErrNodeNotFound returns an error when node does not exists.
-	ErrNodeNotFound = err("node does not exists")
 
 	// ErrBodyNotFound returns an error when body does not exists.
 	ErrBodyNotFound = err("body does not exists")
@@ -48,7 +39,7 @@ func LoadFromURI(uri string) (*Swagger, error) {
 	doc, err = doc.Expanded()
 
 	if err != nil {
-		return nil, errors.Wrap(err, ErrSwaggerExpand.Error())
+		return nil, errors.Wrap(err, "unable to expand the document")
 	}
 
 	return &Swagger{doc.Spec()}, nil
@@ -71,7 +62,7 @@ func LoadFromReader(r io.Reader) (*Swagger, error) {
 	doc, err = doc.Expanded()
 
 	if err != nil {
-		return nil, errors.Wrap(err, ErrSwaggerExpand.Error())
+		return nil, errors.Wrap(err, "unable to expand the document")
 	}
 
 	return &Swagger{doc.Spec()}, nil
@@ -83,7 +74,7 @@ func (s *Swagger) findPath(uri string) (string, error) {
 		tmpl, err := uritemplate.New(s.spec.BasePath + path)
 
 		if err != nil {
-			return "", errors.Wrap(err, ErrResourceURI.Error())
+			return "", errors.Wrap(err, "resource uri does not match")
 		}
 
 		if tmpl.Regexp().MatchString(uri) {
@@ -91,7 +82,7 @@ func (s *Swagger) findPath(uri string) (string, error) {
 		}
 	}
 
-	return "", errors.New(ErrResourceURI.Error())
+	return "", errors.New("resource uri does not match")
 }
 
 // findNode searches a node using segments in the schema.
@@ -107,7 +98,7 @@ func (s *Swagger) findNode(segments ...string) (interface{}, error) {
 	data, _, err := pointer.Get(s.spec)
 
 	if err != nil {
-		return nil, errors.Wrap(err, ErrNodeNotFound.Error())
+		return nil, errors.Wrap(err, "node does not exists")
 	}
 
 	return data, nil
@@ -319,7 +310,7 @@ func (s *Swagger) RequestBody(path, method string) (Body, error) {
 		}
 	}
 
-	return nil, errors.New(ErrBodyNotFound.Error())
+	return nil, ErrBodyNotFound
 }
 
 // ResponseBody retrieves the response body.
@@ -334,5 +325,5 @@ func (s *Swagger) ResponseBody(path, method string, statusCode int) (Body, error
 		return Body(res.Schema), nil
 	}
 
-	return nil, errors.New(ErrBodyNotFound.Error())
+	return nil, ErrBodyNotFound
 }

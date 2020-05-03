@@ -10,16 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/xeipuuv/gojsonschema"
-)
-
-const (
-	// ErrValidation wrap the json schema validation errors
-	ErrValidation = err("unable to load the validation")
-
-	// ErrJSON wrap the json marshall errors
-	ErrJSON = err("unable to marshal")
 )
 
 func failf(format string, a ...interface{}) error {
@@ -84,7 +75,7 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 	)
 
 	if err != nil {
-		return errors.Wrap(err, ErrValidation.Error())
+		return err
 	}
 
 	if result.Valid() {
@@ -92,9 +83,8 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 	}
 
 	data, err := json.Marshal(headers)
-
 	if err != nil {
-		return errors.Wrap(err, ErrJSON.Error())
+		return err
 	}
 
 	errorMessages := []string{}
@@ -128,7 +118,7 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 	)
 
 	if err != nil {
-		return errors.Wrap(err, ErrValidation.Error())
+		return err
 	}
 
 	if result.Valid() {
@@ -136,9 +126,8 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 	}
 
 	data, err := json.Marshal(headers)
-
 	if err != nil {
-		return errors.Wrap(err, ErrJSON.Error())
+		return err
 	}
 
 	errorMessages := []string{}
@@ -166,7 +155,7 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 	)
 
 	if err != nil {
-		return errors.Wrap(err, ErrValidation.Error())
+		return err
 	}
 
 	if result.Valid() {
@@ -174,9 +163,8 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 	}
 
 	data, err := json.Marshal(query)
-
 	if err != nil {
-		return errors.Wrap(err, ErrJSON.Error())
+		return err
 	}
 
 	errorMessages := []string{}
@@ -210,7 +198,7 @@ func RequestBody(body io.Reader, doc Document, path, method string) error {
 	)
 
 	if err != nil {
-		return errors.Wrap(err, ErrValidation.Error())
+		return err
 	}
 
 	if result.Valid() {
@@ -248,7 +236,7 @@ func ResponseBody(body io.Reader, doc Document, path, method string, statusCode 
 	)
 
 	if err != nil {
-		return errors.Wrap(err, ErrValidation.Error())
+		return err
 	}
 
 	if result.Valid() {
@@ -289,15 +277,11 @@ func Request(req *http.Request, doc Document) error {
 
 	err := RequestBody(reader, doc, path, method)
 
-	if err != nil && err.Error() == ErrBodyNotFound.Error() {
+	if err != nil && err == ErrBodyNotFound {
 		return nil
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // Response asserts http response against a schema.

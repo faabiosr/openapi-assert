@@ -199,7 +199,7 @@ func TestAssertRequestBody(t *testing.T) {
 	tests.Add("invalid data", tt{
 		path:   "/api/pets",
 		method: http.MethodPost,
-		err:    "unable to load the validation: EOF",
+		err:    "EOF",
 	})
 
 	tests.Add("required values", tt{
@@ -241,7 +241,7 @@ func TestAssertResponseBody(t *testing.T) {
 		path:   "/api/pets",
 		method: http.MethodGet,
 		status: http.StatusOK,
-		err:    "unable to load the validation: EOF",
+		err:    "EOF",
 	})
 
 	tests.Add("required values", tt{
