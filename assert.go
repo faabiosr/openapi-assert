@@ -18,6 +18,8 @@ func failf(format string, a ...interface{}) error {
 }
 
 // RequestMediaType asserts request media type against a list.
+//
+// Deprecated: Use Assertions.RequestMediaType instead.
 func RequestMediaType(mediaType string, doc Document, path, method string) error {
 	types, err := doc.RequestMediaTypes(path, method)
 	if err != nil {
@@ -36,6 +38,8 @@ func RequestMediaType(mediaType string, doc Document, path, method string) error
 }
 
 // ResponseMediaType asserts response media type against a list.
+//
+// Deprecated: Use Assertions.ResponseMediaType instead.
 func ResponseMediaType(mediaType string, doc Document, path, method string) error {
 	types, err := doc.ResponseMediaTypes(path, method)
 	if err != nil {
@@ -54,6 +58,8 @@ func ResponseMediaType(mediaType string, doc Document, path, method string) erro
 }
 
 // RequestHeaders asserts rquest headers againt a schema header list.
+//
+// Deprecated: Use Assertions.RequestHeaders instead.
 func RequestHeaders(header http.Header, doc Document, path, method string) error {
 	schema, err := doc.RequestHeaders(path, method)
 	if err != nil {
@@ -96,6 +102,8 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 }
 
 // ResponseHeaders asserts response headers againt a schema header list.
+//
+// Deprecated: Use Assertions.ResponseHeaders instead.
 func ResponseHeaders(header http.Header, doc Document, path, method string, statusCode int) error {
 	schema, err := doc.ResponseHeaders(path, method, statusCode)
 	if err != nil {
@@ -138,6 +146,8 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 }
 
 // RequestQuery asserts request query againt a schema.
+//
+// Deprecated: Use Assertions.RequestQuery instead.
 func RequestQuery(query url.Values, doc Document, path, method string) error {
 	schema, err := doc.RequestQuery(path, method)
 	if err != nil {
@@ -174,6 +184,8 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 }
 
 // RequestBody asserts request body against a schema.
+//
+// Deprecated: Use Assertions.RequestBody instead.
 func RequestBody(body io.Reader, doc Document, path, method string) error {
 	schema, err := doc.RequestBody(path, method)
 	if err != nil {
@@ -211,6 +223,8 @@ func RequestBody(body io.Reader, doc Document, path, method string) error {
 }
 
 // ResponseBody asserts response body against a schema.
+//
+// Deprecated: Use Assertions.ResponseBody instead.
 func ResponseBody(body io.Reader, doc Document, path, method string, statusCode int) error {
 	schema, err := doc.ResponseBody(path, method, statusCode)
 	if err != nil {
@@ -248,6 +262,8 @@ func ResponseBody(body io.Reader, doc Document, path, method string, statusCode 
 }
 
 // Request asserts http request against a schema.
+//
+// Deprecated: Use Assertions.Request instead.
 func Request(req *http.Request, doc Document) error {
 	path := req.URL.String()
 	method := req.Method
@@ -277,6 +293,8 @@ func Request(req *http.Request, doc Document) error {
 }
 
 // Response asserts http response against a schema.
+//
+// Deprecated: Use Assertions.Response instead.
 func Response(res *http.Response, doc Document) error {
 	path := res.Request.URL.Path
 	method := res.Request.Method
