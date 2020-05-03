@@ -31,13 +31,11 @@ type (
 // LoadFromURI loads and expands swagger document by uri.
 func LoadFromURI(uri string) (*Swagger, error) {
 	doc, err := loads.Spec(uri)
-
 	if err != nil {
 		return nil, errors.Wrap(err, ErrSwaggerLoad.Error())
 	}
 
 	doc, err = doc.Expanded()
-
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to expand the document")
 	}
@@ -48,19 +46,16 @@ func LoadFromURI(uri string) (*Swagger, error) {
 // LoadFromReader loads and expand swagger document from io.Reader.
 func LoadFromReader(r io.Reader) (*Swagger, error) {
 	data, err := ioutil.ReadAll(r)
-
 	if err != nil {
 		return nil, errors.Wrap(err, ErrSwaggerLoad.Error())
 	}
 
 	doc, err := loads.Analyzed(data, "")
-
 	if err != nil {
 		return nil, errors.Wrap(err, ErrSwaggerLoad.Error())
 	}
 
 	doc, err = doc.Expanded()
-
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to expand the document")
 	}
@@ -72,7 +67,6 @@ func LoadFromReader(r io.Reader) (*Swagger, error) {
 func (s *Swagger) findPath(uri string) (string, error) {
 	for path := range s.spec.Paths.Paths {
 		tmpl, err := uritemplate.New(s.spec.BasePath + path)
-
 		if err != nil {
 			return "", errors.Wrap(err, "resource uri does not match")
 		}
@@ -90,13 +84,11 @@ func (s *Swagger) findNode(segments ...string) (interface{}, error) {
 	segments = append([]string{""}, segments...)
 
 	pointer, err := jsonpointer.New(strings.Join(segments, "/"))
-
 	if err != nil {
 		return nil, err
 	}
 
 	data, _, err := pointer.Get(s.spec)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "node does not exists")
 	}
@@ -106,19 +98,18 @@ func (s *Swagger) findNode(segments ...string) (interface{}, error) {
 
 func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
 	path, err := s.findPath(path)
+	if err != nil {
+		return []string{}, err
+	}
+
 	method = strings.ToLower(method)
 
-	if err != nil {
-		return []string{}, err
-	}
-
 	data, err := s.findNode("paths", path, method, segment)
-
 	if err != nil {
 		return []string{}, err
 	}
 
-	types := []string{}
+	var types []string
 
 	if data != nil {
 		types = data.([]string)
@@ -129,7 +120,6 @@ func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
 	}
 
 	data, err = s.findNode(segment)
-
 	if err != nil {
 		return []string{}, err
 	}
@@ -152,23 +142,19 @@ func (s *Swagger) ResponseMediaTypes(path, method string) ([]string, error) {
 }
 
 func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, error) {
+	var params []spec.Parameter
+
 	path, err := s.findPath(path)
-	method = strings.ToLower(method)
-
-	params := []spec.Parameter{}
-
 	if err != nil {
 		return params, err
 	}
 
 	data, _ := s.findNode("paths", path, "parameters")
-
 	if data != nil {
 		params = append(params, data.([]spec.Parameter)...)
 	}
 
-	data, _ = s.findNode("paths", path, method, "parameters")
-
+	data, _ = s.findNode("paths", path, strings.ToLower(method), "parameters")
 	if data != nil {
 		params = append(params, data.([]spec.Parameter)...)
 	}
@@ -177,23 +163,21 @@ func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, erro
 }
 
 func (s *Swagger) response(path, method string, statusCode int) (spec.Response, error) {
-	path, err := s.findPath(path)
-	method = strings.ToLower(method)
-
 	var res spec.Response
 
+	path, err := s.findPath(path)
 	if err != nil {
 		return res, err
 	}
 
-	data, err := s.findNode("paths", path, method, "responses", strconv.Itoa(statusCode))
+	method = strings.ToLower(method)
 
+	data, err := s.findNode("paths", path, method, "responses", strconv.Itoa(statusCode))
 	if data != nil && err == nil {
 		return data.(spec.Response), nil
 	}
 
 	data, err = s.findNode("paths", path, method, "responses", "default")
-
 	if err != nil {
 		return res, err
 	}
@@ -203,10 +187,9 @@ func (s *Swagger) response(path, method string, statusCode int) (spec.Response, 
 
 // RequestHeaders retrieves a list of request headers.
 func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
-	params, err := s.requestParameters(path, method)
-
 	headers := Headers{}
 
+	params, err := s.requestParameters(path, method)
 	if err != nil {
 		return headers, err
 	}
@@ -238,9 +221,9 @@ func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
 
 // ResponseHeaders retrieves a list of response headers.
 func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers, error) {
-	res, err := s.response(path, method, statusCode)
 	headers := Headers{}
 
+	res, err := s.response(path, method, statusCode)
 	if err != nil {
 		return headers, err
 	}
@@ -263,10 +246,9 @@ func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers,
 
 // RequestQuery retrieves a list of request query.
 func (s *Swagger) RequestQuery(path, method string) (Query, error) {
-	params, err := s.requestParameters(path, method)
-
 	query := Query{}
 
+	params, err := s.requestParameters(path, method)
 	if err != nil {
 		return query, err
 	}
@@ -299,7 +281,6 @@ func (s *Swagger) RequestQuery(path, method string) (Query, error) {
 // RequestBody retrieves the request body.
 func (s *Swagger) RequestBody(path, method string) (Body, error) {
 	params, err := s.requestParameters(path, method)
-
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +297,6 @@ func (s *Swagger) RequestBody(path, method string) (Body, error) {
 // ResponseBody retrieves the response body.
 func (s *Swagger) ResponseBody(path, method string, statusCode int) (Body, error) {
 	res, err := s.response(path, method, statusCode)
-
 	if err != nil {
 		return nil, err
 	}

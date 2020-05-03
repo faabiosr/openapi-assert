@@ -20,7 +20,6 @@ func failf(format string, a ...interface{}) error {
 // RequestMediaType asserts request media type against a list.
 func RequestMediaType(mediaType string, doc Document, path, method string) error {
 	types, err := doc.RequestMediaTypes(path, method)
-
 	if err != nil {
 		return err
 	}
@@ -39,7 +38,6 @@ func RequestMediaType(mediaType string, doc Document, path, method string) error
 // ResponseMediaType asserts response media type against a list.
 func ResponseMediaType(mediaType string, doc Document, path, method string) error {
 	types, err := doc.ResponseMediaTypes(path, method)
-
 	if err != nil {
 		return err
 	}
@@ -58,7 +56,6 @@ func ResponseMediaType(mediaType string, doc Document, path, method string) erro
 // RequestHeaders asserts rquest headers againt a schema header list.
 func RequestHeaders(header http.Header, doc Document, path, method string) error {
 	schema, err := doc.RequestHeaders(path, method)
-
 	if err != nil {
 		return err
 	}
@@ -101,7 +98,6 @@ func RequestHeaders(header http.Header, doc Document, path, method string) error
 // ResponseHeaders asserts response headers againt a schema header list.
 func ResponseHeaders(header http.Header, doc Document, path, method string, statusCode int) error {
 	schema, err := doc.ResponseHeaders(path, method, statusCode)
-
 	if err != nil {
 		return err
 	}
@@ -144,7 +140,6 @@ func ResponseHeaders(header http.Header, doc Document, path, method string, stat
 // RequestQuery asserts request query againt a schema.
 func RequestQuery(query url.Values, doc Document, path, method string) error {
 	schema, err := doc.RequestQuery(path, method)
-
 	if err != nil {
 		return err
 	}
@@ -181,7 +176,6 @@ func RequestQuery(query url.Values, doc Document, path, method string) error {
 // RequestBody asserts request body against a schema.
 func RequestBody(body io.Reader, doc Document, path, method string) error {
 	schema, err := doc.RequestBody(path, method)
-
 	if err != nil {
 		return err
 	}
@@ -219,7 +213,6 @@ func RequestBody(body io.Reader, doc Document, path, method string) error {
 // ResponseBody asserts response body against a schema.
 func ResponseBody(body io.Reader, doc Document, path, method string, statusCode int) error {
 	schema, err := doc.ResponseBody(path, method, statusCode)
-
 	if err != nil {
 		return err
 	}
@@ -276,7 +269,6 @@ func Request(req *http.Request, doc Document) error {
 	req.Body = ioutil.NopCloser(buf)
 
 	err := RequestBody(reader, doc, path, method)
-
 	if err != nil && err == ErrBodyNotFound {
 		return nil
 	}
@@ -286,7 +278,6 @@ func Request(req *http.Request, doc Document) error {
 
 // Response asserts http response against a schema.
 func Response(res *http.Response, doc Document) error {
-
 	path := res.Request.URL.Path
 	method := res.Request.Method
 	statusCode := res.StatusCode
@@ -303,9 +294,5 @@ func Response(res *http.Response, doc Document) error {
 	reader := io.TeeReader(res.Body, buf)
 	res.Body = ioutil.NopCloser(buf)
 
-	if err := ResponseBody(reader, doc, path, method, statusCode); err != nil {
-		return err
-	}
-
-	return nil
+	return ResponseBody(reader, doc, path, method, statusCode)
 }
