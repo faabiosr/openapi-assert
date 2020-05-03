@@ -1,233 +1,365 @@
 package assert
 
 import (
+	"io"
 	"net/http"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"gitlab.com/flimzy/testy"
 )
 
-type (
-	SwaggerTestSuite struct {
-		BaseTestSuite
+func TestLoadFromURI(t *testing.T) {
+	type tt struct {
+		uri string
+		err string
 	}
-)
 
-func (s *SwaggerTestSuite) TestLoadFromUriWithEmptyParam() {
-	doc, err := LoadFromURI("")
+	tests := testy.NewTable()
 
-	s.assert.Nil(doc)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrSwaggerLoad)
+	tests.Add("empty param", tt{
+		uri: "",
+		err: "unable to load the document by uri: open : no such file or directory",
+	})
+
+	tests.Add("invalid file", tt{
+		uri: "./fixtures/invalid-doc.json",
+		err: `unable to expand the document: object has no key "ErrorModel"`,
+	})
+
+	tests.Add("success", tt{
+		uri: "./fixtures/docs.json",
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		_, err := LoadFromURI(tt.uri)
+		testy.Error(t, tt.err, err)
+	})
 }
 
-func (s *SwaggerTestSuite) TestLoadFromUriWithInvalidFile() {
-	doc, err := LoadFromURI("./fixtures/invalid-doc.json")
+func TestLoadFromReader(t *testing.T) {
+	type tt struct {
+		reader io.Reader
+		err    string
+	}
 
-	s.assert.Nil(doc)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrSwaggerExpand)
+	tests := testy.NewTable()
+
+	tests.Add("invalid content", tt{
+		reader: strings.NewReader("{"),
+		err:    "unable to load the document by uri: unexpected end of JSON input",
+	})
+
+	tests.Add("invalid file", func() interface{} {
+		f, _ := os.Open("./fixtures/invalid-doc.json")
+
+		return tt{
+			reader: f,
+			err:    `unable to expand the document: object has no key "ErrorModel"`,
+		}
+	})
+
+	tests.Add("success", func() interface{} {
+		f, _ := os.Open("./fixtures/docs.json")
+
+		return tt{
+			reader: f,
+		}
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		_, err := LoadFromReader(tt.reader)
+		testy.Error(t, tt.err, err)
+	})
 }
 
-func (s *SwaggerTestSuite) TestLoadFromUri() {
-	doc, err := LoadFromURI(s.filePath)
-
-	s.assert.IsType(&Swagger{}, doc)
-	s.assert.Implements(new(Document), doc)
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestLoadFromReaderWithInvalidContent() {
-	doc, err := LoadFromReader(strings.NewReader("{"))
-
-	s.assert.Nil(doc)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrSwaggerLoad)
-}
-
-func (s *SwaggerTestSuite) TestLoadFromReaderWithInvalidFile() {
-	f, _ := os.Open("./fixtures/invalid-doc.json")
-	doc, err := LoadFromReader(f)
-
-	s.assert.Nil(doc)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrSwaggerExpand)
-}
-
-func (s *SwaggerTestSuite) TestLoadFromReader() {
-	f, _ := os.Open(s.filePath)
-	doc, err := LoadFromReader(f)
-
-	s.assert.IsType(&Swagger{}, doc)
-	s.assert.Implements(new(Document), doc)
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestFindPathWithBrokenDocument() {
+func TestFindPath(t *testing.T) {
 	doc, _ := LoadFromURI("./fixtures/invalid-path.json")
 
-	path, err := doc.findPath("/api/food/a")
-
-	s.assert.Empty(path)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrResourceURI)
+	_, err := doc.findPath("/api/food/a")
+	testy.Error(t, "resource uri does not match: uritemplate:11:invalid varname", err)
 }
 
-func (s *SwaggerTestSuite) TestRequestMediaTypesWithInvalidPath() {
-	types, err := s.doc.RequestMediaTypes("/some", http.MethodPost)
+func TestRequestMediaTypes(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		err    string
+	}
 
-	s.assert.Len(types, 0)
-	s.assert.Error(err)
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("default types", tt{
+		path:   "/api/pets/1",
+		method: http.MethodDelete,
+	})
+
+	tests.Add("success", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+
+		got, err := doc.RequestMediaTypes(tt.path, tt.method)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
+
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }
 
-func (s *SwaggerTestSuite) TestRequestMediaTypes() {
-	types, err := s.doc.RequestMediaTypes("/api/pets", http.MethodGet)
+func TestResponseMediaTypes(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		err    string
+	}
 
-	s.assert.Len(types, 1)
-	s.assert.Nil(err)
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("default types", tt{
+		path:   "/api/pets/1",
+		method: http.MethodDelete,
+	})
+
+	tests.Add("success", tt{
+		path:   "/api/pets/1",
+		method: http.MethodPatch,
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+
+		got, err := doc.ResponseMediaTypes(tt.path, tt.method)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
+
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }
 
-func (s *SwaggerTestSuite) TestRequestMediaTypesReturnsDefaultTypes() {
-	types, err := s.doc.RequestMediaTypes("/api/pets/1", http.MethodDelete)
+func TestRequestHeaders(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		err    string
+	}
 
-	s.assert.Len(types, 1)
-	s.assert.Nil(err)
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("no headers", tt{
+		path:   "/api/food",
+		method: http.MethodGet,
+	})
+
+	tests.Add("success", tt{
+		path:   "/api/pets/1",
+		method: http.MethodPatch,
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+
+		got, err := doc.RequestHeaders(tt.path, tt.method)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
+
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }
 
-func (s *SwaggerTestSuite) TestResponseMediaTypesWithInvalidPath() {
-	types, err := s.doc.ResponseMediaTypes("/some", http.MethodPost)
+func TestResponseHeaders(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		status int
+		err    string
+	}
 
-	s.assert.Len(types, 0)
-	s.assert.Error(err)
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		status: http.StatusOK,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("default", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusBadRequest,
+	})
+
+	tests.Add("success", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+
+		got, err := doc.ResponseHeaders(tt.path, tt.method, tt.status)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
+
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }
 
-func (s *SwaggerTestSuite) TestResponseMediaTypes() {
-	types, err := s.doc.ResponseMediaTypes("/api/pets/1", http.MethodPatch)
+func TestRequestQuery(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		err    string
+	}
 
-	s.assert.Len(types, 1)
-	s.assert.Nil(err)
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("no query", tt{
+		path:   "/api/food",
+		method: http.MethodGet,
+	})
+
+	tests.Add("success", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+
+		got, err := doc.RequestQuery(tt.path, tt.method)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
+
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }
 
-func (s *SwaggerTestSuite) TestResponseMediaTypesReturnsDefaultTypes() {
-	types, err := s.doc.ResponseMediaTypes("/api/pets/1", http.MethodDelete)
+func TestRequestBody(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		err    string
+	}
 
-	s.assert.Len(types, 1)
-	s.assert.Nil(err)
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("not exists", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		err:    "body does not exists",
+	})
+
+	tests.Add("success", tt{
+		path:   "/api/pets",
+		method: http.MethodPost,
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+
+		got, err := doc.RequestBody(tt.path, tt.method)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
+
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }
 
-func (s *SwaggerTestSuite) TestRequestHeadersWithInvalidPath() {
-	headers, err := s.doc.RequestHeaders("/some", http.MethodPost)
+func TestResponseBody(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		status int
+		err    string
+	}
 
-	s.assert.Len(headers, 0)
-	s.assert.Error(err)
-}
+	tests := testy.NewTable()
 
-func (s *SwaggerTestSuite) TestRequestHeaders() {
-	headers, err := s.doc.RequestHeaders("/api/pets/1", http.MethodPatch)
+	tests.Add("invalid path", tt{
+		path:   "/some",
+		method: http.MethodPost,
+		status: http.StatusOK,
+		err:    "resource uri does not match",
+	})
 
-	s.assert.Len(headers, 3)
-	s.assert.Contains(headers, "x-required-header")
-	s.assert.NoError(err)
-}
+	tests.Add("not exists", tt{
+		path:   "/api/food",
+		method: http.MethodGet,
+		status: http.StatusNotModified,
+		err:    "body does not exists",
+	})
 
-func (s *SwaggerTestSuite) TestRequestHeadersRetrievesNoHeaders() {
-	headers, err := s.doc.RequestHeaders("/api/food", http.MethodGet)
+	tests.Add("success", tt{
+		path:   "/api/pets",
+		method: http.MethodPost,
+		status: http.StatusOK,
+	})
 
-	s.assert.Len(headers, 0)
-	s.assert.NoError(err)
-}
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
 
-func (s *SwaggerTestSuite) TestResponseHeadersWithInvalidPath() {
-	headers, err := s.doc.ResponseHeaders("/some", http.MethodPost, http.StatusOK)
+		got, err := doc.ResponseBody(tt.path, tt.method, tt.status)
+		if err != nil {
+			testy.Error(t, tt.err, err)
+		}
 
-	s.assert.Len(headers, 0)
-	s.assert.Error(err)
-}
-
-func (s *SwaggerTestSuite) TestResponseHeaders() {
-	headers, err := s.doc.ResponseHeaders("/api/pets", http.MethodGet, http.StatusOK)
-
-	s.assert.Len(headers, 2)
-	s.assert.Contains(headers, "etag")
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestResponseHeadersDefault() {
-	headers, err := s.doc.ResponseHeaders("/api/pets", http.MethodGet, http.StatusBadRequest)
-
-	s.assert.Len(headers, 0)
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestRequestQueryWithInvalidPath() {
-	query, err := s.doc.RequestQuery("/some", http.MethodPost)
-
-	s.assert.Len(query, 0)
-	s.assert.Error(err)
-}
-
-func (s *SwaggerTestSuite) TestRequestQuery() {
-	query, err := s.doc.RequestQuery("/api/pets", http.MethodGet)
-
-	s.assert.Len(query, 3)
-	s.assert.Contains(query, "limit")
-	s.assert.Contains(query, "tags")
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestRequestQueryRetrievesNoQuery() {
-	query, err := s.doc.RequestQuery("/api/food", http.MethodGet)
-
-	s.assert.Len(query, 0)
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestRequestBodyWithInvalidPath() {
-	body, err := s.doc.RequestBody("/some", http.MethodPost)
-
-	s.assert.Nil(body)
-	s.assert.Error(err)
-}
-
-func (s *SwaggerTestSuite) TestRequestBodyWhenBodyNotExists() {
-	body, err := s.doc.RequestBody("/api/pets", http.MethodGet)
-
-	s.assert.Nil(body)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrBodyNotFound)
-}
-
-func (s *SwaggerTestSuite) TestRequestBody() {
-	body, err := s.doc.RequestBody("/api/pets", http.MethodPost)
-
-	s.assert.NotEmpty(body)
-	s.assert.NoError(err)
-}
-
-func (s *SwaggerTestSuite) TestResponseBodyWithInvalidPath() {
-	body, err := s.doc.ResponseBody("/some", http.MethodPost, http.StatusOK)
-
-	s.assert.Nil(body)
-	s.assert.Error(err)
-}
-
-func (s *SwaggerTestSuite) TestResponseBodyWhenBodyNotExists() {
-	body, err := s.doc.ResponseBody("/api/food", http.MethodGet, http.StatusNotModified)
-
-	s.assert.Nil(body)
-	s.assert.Error(err)
-	s.assert.Contains(err.Error(), ErrBodyNotFound)
-}
-
-func (s *SwaggerTestSuite) TestResponseBody() {
-	body, err := s.doc.ResponseBody("/api/pets", http.MethodGet, http.StatusOK)
-
-	s.assert.NotEmpty(body)
-	s.assert.NoError(err)
-}
-
-func TestSwaggerTestSuite(t *testing.T) {
-	suite.Run(t, new(SwaggerTestSuite))
+		if d := testy.DiffInterface(testy.Snapshot(t), got); d != nil {
+			t.Error(d)
+		}
+	})
 }

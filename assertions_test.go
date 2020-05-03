@@ -2,112 +2,112 @@ package assert
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/suite"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"testing"
 )
 
-type (
-	AssertionsTestSuite struct {
-		BaseTestSuite
+func TestAssertions(t *testing.T) {
+	doc, _ := LoadFromURI("./fixtures/docs.json")
+	assertions := New(doc)
 
-		assertions *Assertions
-	}
-)
+	t.Run("request media type", func(t *testing.T) {
+		err := assertions.RequestMediaType("application/json", "/api/food", http.MethodGet)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-func (s *AssertionsTestSuite) SetupTest() {
-	s.BaseTestSuite.SetupTest()
-	s.assertions = New(s.doc)
-}
+	t.Run("response media type", func(t *testing.T) {
+		err := assertions.ResponseMediaType("application/json", "/api/food", http.MethodGet)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-func (s *AssertionsTestSuite) TestRequestMediaType() {
-	err := s.assertions.RequestMediaType("application/json", "/api/food", http.MethodGet)
+	t.Run("request headers", func(t *testing.T) {
+		headers := map[string][]string{
+			"x-required-header": {"value"},
+		}
 
-	s.assert.Nil(err)
-}
+		err := assertions.RequestHeaders(headers, "/api/pets/1", http.MethodPatch)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-func (s *AssertionsTestSuite) TestResponseMediaType() {
-	err := s.assertions.ResponseMediaType("application/json", "/api/food", http.MethodGet)
+	t.Run("request headers", func(t *testing.T) {
+		headers := map[string][]string{
+			"etag": {"value"},
+		}
 
-	s.assert.Nil(err)
-}
+		err := assertions.ResponseHeaders(headers, "/api/pets", http.MethodGet, http.StatusOK)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-func (s *AssertionsTestSuite) TestRequestHeaders() {
-	headers := map[string][]string{
-		"x-required-header": {"value"},
-	}
+	t.Run("request query", func(t *testing.T) {
+		query := url.Values{}
+		query.Add("tags", "foo")
+		query.Add("tags", "bar")
+		query.Add("limit", "1")
 
-	err := s.assertions.RequestHeaders(headers, "/api/pets/1", http.MethodPatch)
+		err := assertions.RequestQuery(query, "/api/pets", http.MethodGet)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-	s.assert.Nil(err)
-}
+	t.Run("request body", func(t *testing.T) {
+		buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
 
-func (s *AssertionsTestSuite) TestResponseHeaders() {
-	headers := map[string][]string{
-		"etag": {"value"},
-	}
+		err := assertions.RequestBody(buf, "/api/pets", http.MethodPost)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-	err := s.assertions.ResponseHeaders(headers, "/api/pets", http.MethodGet, http.StatusOK)
+	t.Run("response body", func(t *testing.T) {
+		buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
 
-	s.assert.Nil(err)
-}
+		err := assertions.ResponseBody(buf, "/api/pets", http.MethodGet, http.StatusOK)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-func (s *AssertionsTestSuite) TestRequestQuery() {
-	query := url.Values{}
-	query.Add("tags", "foo")
-	query.Add("tags", "bar")
-	query.Add("limit", "1")
+	t.Run("request", func(t *testing.T) {
+		buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
 
-	err := s.assertions.RequestQuery(query, "/api/pets", http.MethodGet)
+		req, _ := http.NewRequest(http.MethodPost, "/api/pets", buf)
+		req.Header.Add("Content-Type", "application/json")
 
-	s.assert.Nil(err)
-}
+		err := assertions.Request(req)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 
-func (s *AssertionsTestSuite) TestRequestBody() {
-	buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
+	t.Run("response", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
 
-	err := s.assertions.RequestBody(buf, "/api/pets", http.MethodPost)
+		buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
 
-	s.assert.Nil(err)
-}
+		res := &http.Response{
+			StatusCode: http.StatusOK,
+			Request:    req,
+			Header: map[string][]string{
+				"Content-Type": {"application/json"},
+				"etag":         {"value"},
+			},
+			Body: ioutil.NopCloser(buf),
+		}
 
-func (s *AssertionsTestSuite) TestResponseBody() {
-	buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
-
-	err := s.assertions.ResponseBody(buf, "/api/pets", http.MethodGet, http.StatusOK)
-
-	s.assert.Nil(err)
-}
-
-func (s *AssertionsTestSuite) TestRequest() {
-	buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
-
-	req, _ := http.NewRequest(http.MethodPost, "/api/pets", buf)
-	req.Header.Add("Content-Type", "application/json")
-
-	s.assert.Nil(s.assertions.Request(req))
-}
-
-func (s *AssertionsTestSuite) TestResponse() {
-	req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
-
-	buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
-
-	res := &http.Response{
-		StatusCode: http.StatusOK,
-		Request:    req,
-		Header: map[string][]string{
-			"Content-Type": {"application/json"},
-			"etag":         {"value"},
-		},
-		Body: ioutil.NopCloser(buf),
-	}
-
-	s.assert.Nil(s.assertions.Response(res))
-}
-
-func TestAssertionsTestSuite(t *testing.T) {
-	suite.Run(t, new(AssertionsTestSuite))
+		err := assertions.Response(res)
+		if err != nil {
+			t.Error(err)
+		}
+	})
 }

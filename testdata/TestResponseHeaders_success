@@ -1,0 +1,36 @@
+(assert.Headers) (len=2) {
+  (string) (len=4) "etag": (spec.Header) {
+    CommonValidations: (spec.CommonValidations) {
+      Maximum: (*float64)(<nil>),
+      ExclusiveMaximum: (bool) false,
+      Minimum: (*float64)(1),
+      ExclusiveMinimum: (bool) false,
+      MaxLength: (*int64)(<nil>),
+      MinLength: (*int64)(<nil>),
+      Pattern: (string) "",
+      MaxItems: (*int64)(<nil>),
+      MinItems: (*int64)(<nil>),
+      UniqueItems: (bool) false,
+      MultipleOf: (*float64)(<nil>),
+      Enum: ([]interface {}) <nil>
+    },
+    SimpleSchema: (spec.SimpleSchema) {
+      Type: (string) (len=6) "string",
+      Nullable: (bool) false,
+      Format: (string) "",
+      Items: (*spec.Items)(<nil>),
+      CollectionFormat: (string) "",
+      Default: (interface {}) <nil>,
+      Example: (interface {}) <nil>
+    },
+    VendorExtensible: (spec.VendorExtensible) {
+      Extensions: (spec.Extensions) <nil>
+    },
+    HeaderProps: (spec.HeaderProps) {
+      Description: (string) ""
+    }
+  },
+  (string) (len=8) "required": ([]string) (len=1) {
+    (string) (len=4) "etag"
+  }
+}

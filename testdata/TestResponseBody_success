@@ -1,0 +1,263 @@
+(*spec.Schema)({
+  VendorExtensible: (spec.VendorExtensible) {
+    Extensions: (spec.Extensions) <nil>
+  },
+  SchemaProps: (spec.SchemaProps) {
+    ID: (string) "",
+    Ref: (spec.Ref) {
+      Ref: (jsonreference.Ref) {
+        referenceURL: (*url.URL)(<nil>),
+        referencePointer: (jsonpointer.Pointer) {
+          referenceTokens: ([]string) <nil>
+        },
+        HasFullURL: (bool) false,
+        HasURLPathOnly: (bool) false,
+        HasFragmentOnly: (bool) false,
+        HasFileScheme: (bool) false,
+        HasFullFilePath: (bool) false
+      }
+    },
+    Schema: (spec.SchemaURL) "",
+    Description: (string) "",
+    Type: (spec.StringOrArray) (len=1) {
+      (string) (len=6) "object"
+    },
+    Nullable: (bool) false,
+    Format: (string) "",
+    Title: (string) "",
+    Default: (interface {}) <nil>,
+    Maximum: (*float64)(<nil>),
+    ExclusiveMaximum: (bool) false,
+    Minimum: (*float64)(<nil>),
+    ExclusiveMinimum: (bool) false,
+    MaxLength: (*int64)(<nil>),
+    MinLength: (*int64)(<nil>),
+    Pattern: (string) "",
+    MaxItems: (*int64)(<nil>),
+    MinItems: (*int64)(<nil>),
+    UniqueItems: (bool) false,
+    MultipleOf: (*float64)(<nil>),
+    Enum: ([]interface {}) <nil>,
+    MaxProperties: (*int64)(<nil>),
+    MinProperties: (*int64)(<nil>),
+    Required: ([]string) (len=2) {
+      (string) (len=2) "id",
+      (string) (len=4) "name"
+    },
+    Items: (*spec.SchemaOrArray)(<nil>),
+    AllOf: ([]spec.Schema) <nil>,
+    OneOf: ([]spec.Schema) <nil>,
+    AnyOf: ([]spec.Schema) <nil>,
+    Not: (*spec.Schema)(<nil>),
+    Properties: (map[string]spec.Schema) (len=3) {
+      (string) (len=2) "id": (spec.Schema) {
+        VendorExtensible: (spec.VendorExtensible) {
+          Extensions: (spec.Extensions) <nil>
+        },
+        SchemaProps: (spec.SchemaProps) {
+          ID: (string) "",
+          Ref: (spec.Ref) {
+            Ref: (jsonreference.Ref) {
+              referenceURL: (*url.URL)(<nil>),
+              referencePointer: (jsonpointer.Pointer) {
+                referenceTokens: ([]string) <nil>
+              },
+              HasFullURL: (bool) false,
+              HasURLPathOnly: (bool) false,
+              HasFragmentOnly: (bool) false,
+              HasFileScheme: (bool) false,
+              HasFullFilePath: (bool) false
+            }
+          },
+          Schema: (spec.SchemaURL) "",
+          Description: (string) "",
+          Type: (spec.StringOrArray) (len=1) {
+            (string) (len=7) "integer"
+          },
+          Nullable: (bool) false,
+          Format: (string) (len=5) "int64",
+          Title: (string) "",
+          Default: (interface {}) <nil>,
+          Maximum: (*float64)(<nil>),
+          ExclusiveMaximum: (bool) false,
+          Minimum: (*float64)(<nil>),
+          ExclusiveMinimum: (bool) false,
+          MaxLength: (*int64)(<nil>),
+          MinLength: (*int64)(<nil>),
+          Pattern: (string) "",
+          MaxItems: (*int64)(<nil>),
+          MinItems: (*int64)(<nil>),
+          UniqueItems: (bool) false,
+          MultipleOf: (*float64)(<nil>),
+          Enum: ([]interface {}) <nil>,
+          MaxProperties: (*int64)(<nil>),
+          MinProperties: (*int64)(<nil>),
+          Required: ([]string) <nil>,
+          Items: (*spec.SchemaOrArray)(<nil>),
+          AllOf: ([]spec.Schema) <nil>,
+          OneOf: ([]spec.Schema) <nil>,
+          AnyOf: ([]spec.Schema) <nil>,
+          Not: (*spec.Schema)(<nil>),
+          Properties: (map[string]spec.Schema) <nil>,
+          AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+          PatternProperties: (map[string]spec.Schema) <nil>,
+          Dependencies: (spec.Dependencies) <nil>,
+          AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+          Definitions: (spec.Definitions) <nil>
+        },
+        SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+          Discriminator: (string) "",
+          ReadOnly: (bool) false,
+          XML: (*spec.XMLObject)(<nil>),
+          ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+          Example: (interface {}) <nil>
+        },
+        ExtraProps: (map[string]interface {}) <nil>
+      },
+      (string) (len=4) "name": (spec.Schema) {
+        VendorExtensible: (spec.VendorExtensible) {
+          Extensions: (spec.Extensions) <nil>
+        },
+        SchemaProps: (spec.SchemaProps) {
+          ID: (string) "",
+          Ref: (spec.Ref) {
+            Ref: (jsonreference.Ref) {
+              referenceURL: (*url.URL)(<nil>),
+              referencePointer: (jsonpointer.Pointer) {
+                referenceTokens: ([]string) <nil>
+              },
+              HasFullURL: (bool) false,
+              HasURLPathOnly: (bool) false,
+              HasFragmentOnly: (bool) false,
+              HasFileScheme: (bool) false,
+              HasFullFilePath: (bool) false
+            }
+          },
+          Schema: (spec.SchemaURL) "",
+          Description: (string) "",
+          Type: (spec.StringOrArray) (len=1) {
+            (string) (len=6) "string"
+          },
+          Nullable: (bool) false,
+          Format: (string) "",
+          Title: (string) "",
+          Default: (interface {}) <nil>,
+          Maximum: (*float64)(<nil>),
+          ExclusiveMaximum: (bool) false,
+          Minimum: (*float64)(<nil>),
+          ExclusiveMinimum: (bool) false,
+          MaxLength: (*int64)(<nil>),
+          MinLength: (*int64)(<nil>),
+          Pattern: (string) "",
+          MaxItems: (*int64)(<nil>),
+          MinItems: (*int64)(<nil>),
+          UniqueItems: (bool) false,
+          MultipleOf: (*float64)(<nil>),
+          Enum: ([]interface {}) <nil>,
+          MaxProperties: (*int64)(<nil>),
+          MinProperties: (*int64)(<nil>),
+          Required: ([]string) <nil>,
+          Items: (*spec.SchemaOrArray)(<nil>),
+          AllOf: ([]spec.Schema) <nil>,
+          OneOf: ([]spec.Schema) <nil>,
+          AnyOf: ([]spec.Schema) <nil>,
+          Not: (*spec.Schema)(<nil>),
+          Properties: (map[string]spec.Schema) <nil>,
+          AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+          PatternProperties: (map[string]spec.Schema) <nil>,
+          Dependencies: (spec.Dependencies) <nil>,
+          AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+          Definitions: (spec.Definitions) <nil>
+        },
+        SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+          Discriminator: (string) "",
+          ReadOnly: (bool) false,
+          XML: (*spec.XMLObject)(<nil>),
+          ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+          Example: (interface {}) <nil>
+        },
+        ExtraProps: (map[string]interface {}) <nil>
+      },
+      (string) (len=3) "tag": (spec.Schema) {
+        VendorExtensible: (spec.VendorExtensible) {
+          Extensions: (spec.Extensions) <nil>
+        },
+        SchemaProps: (spec.SchemaProps) {
+          ID: (string) "",
+          Ref: (spec.Ref) {
+            Ref: (jsonreference.Ref) {
+              referenceURL: (*url.URL)(<nil>),
+              referencePointer: (jsonpointer.Pointer) {
+                referenceTokens: ([]string) <nil>
+              },
+              HasFullURL: (bool) false,
+              HasURLPathOnly: (bool) false,
+              HasFragmentOnly: (bool) false,
+              HasFileScheme: (bool) false,
+              HasFullFilePath: (bool) false
+            }
+          },
+          Schema: (spec.SchemaURL) "",
+          Description: (string) "",
+          Type: (spec.StringOrArray) (len=1) {
+            (string) (len=6) "string"
+          },
+          Nullable: (bool) false,
+          Format: (string) "",
+          Title: (string) "",
+          Default: (interface {}) <nil>,
+          Maximum: (*float64)(<nil>),
+          ExclusiveMaximum: (bool) false,
+          Minimum: (*float64)(<nil>),
+          ExclusiveMinimum: (bool) false,
+          MaxLength: (*int64)(<nil>),
+          MinLength: (*int64)(<nil>),
+          Pattern: (string) "",
+          MaxItems: (*int64)(<nil>),
+          MinItems: (*int64)(<nil>),
+          UniqueItems: (bool) false,
+          MultipleOf: (*float64)(<nil>),
+          Enum: ([]interface {}) <nil>,
+          MaxProperties: (*int64)(<nil>),
+          MinProperties: (*int64)(<nil>),
+          Required: ([]string) <nil>,
+          Items: (*spec.SchemaOrArray)(<nil>),
+          AllOf: ([]spec.Schema) <nil>,
+          OneOf: ([]spec.Schema) <nil>,
+          AnyOf: ([]spec.Schema) <nil>,
+          Not: (*spec.Schema)(<nil>),
+          Properties: (map[string]spec.Schema) <nil>,
+          AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+          PatternProperties: (map[string]spec.Schema) <nil>,
+          Dependencies: (spec.Dependencies) <nil>,
+          AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+          Definitions: (spec.Definitions) <nil>
+        },
+        SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+          Discriminator: (string) "",
+          ReadOnly: (bool) false,
+          XML: (*spec.XMLObject)(<nil>),
+          ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+          Example: (interface {}) <nil>
+        },
+        ExtraProps: (map[string]interface {}) <nil>
+      }
+    },
+    AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+    PatternProperties: (map[string]spec.Schema) <nil>,
+    Dependencies: (spec.Dependencies) <nil>,
+    AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+    Definitions: (spec.Definitions) <nil>
+  },
+  SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+    Discriminator: (string) "",
+    ReadOnly: (bool) false,
+    XML: (*spec.XMLObject)(<nil>),
+    ExternalDocs: (*spec.ExternalDocumentation)({
+      Description: (string) (len=19) "find more info here",
+      URL: (string) (len=24) "https://swagger.io/about"
+    }),
+    Example: (interface {}) <nil>
+  },
+  ExtraProps: (map[string]interface {}) <nil>
+})

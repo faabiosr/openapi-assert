@@ -1,0 +1,15 @@
+(assert.Query) (len=3) {
+  (string) (len=5) "limit": (*assert.Param)({
+    Type: (string) (len=7) "integer",
+    Description: (string) (len=35) "maximum number of results to return",
+    In: (string) (len=5) "query"
+  }),
+  (string) (len=8) "required": (assert.Required) (len=1) {
+    (string) (len=5) "limit"
+  },
+  (string) (len=4) "tags": (*assert.Param)({
+    Type: (string) (len=5) "array",
+    Description: (string) (len=17) "tags to filter by",
+    In: (string) (len=5) "query"
+  })
+}

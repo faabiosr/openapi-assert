@@ -8,107 +8,76 @@ import (
 
 	oapi "github.com/faabiosr/openapi-assert"
 	ec "github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"gitlab.com/flimzy/testy"
 )
 
-type (
-	AssertTestSuite struct {
-		suite.Suite
-		assert *assert.Assertions
-
-		doc oapi.Document
-
-		srv *ec.Echo
+func TestMiddlewareWithConfig(t *testing.T) {
+	type tt struct {
+		cfg AssertConfig
+		err string
 	}
-)
 
-func (s *AssertTestSuite) SetupTest() {
-	s.assert = assert.New(s.T())
-	s.doc, _ = oapi.LoadFromURI("../../fixtures/docs.json")
-	s.srv = ec.New()
-}
+	doc, _ := oapi.LoadFromURI("../../fixtures/docs.json")
 
-func (s *AssertTestSuite) TestMiddlewareWithConfig() {
-	req := httptest.NewRequest(ec.PATCH, "/api/pets/1", nil)
-	req.Header.Add(ec.HeaderContentType, ec.MIMEApplicationJSON)
+	tests := testy.NewTable()
 
-	rec := httptest.NewRecorder()
+	tests.Add("with config", tt{
+		cfg: AssertConfig{Document: doc},
+		err: `code=400, message=failed asserting that '{"Content-Type":"application/json"}' is a valid request header (x-required-header is required), internal=failed asserting that '{"Content-Type":"application/json"}' is a valid request header (x-required-header is required)`,
+	})
 
-	c := s.srv.NewContext(req, rec)
-
-	cfg := AssertConfig{Document: s.doc}
-
-	err := AssertWithConfig(cfg)(func(ctx ec.Context) error {
-		return ctx.String(http.StatusOK, "test")
-	})(c)
-
-	s.assert.Error(err)
-}
-
-func (s *AssertTestSuite) TestMiddleware() {
-	req := httptest.NewRequest(
-		ec.POST,
-		"/api/pets",
-		strings.NewReader(`{"id": 1, "name": "doggo"}`),
-	)
-
-	req.Header.Add(ec.HeaderContentType, ec.MIMEApplicationJSON)
-
-	rec := httptest.NewRecorder()
-
-	c := s.srv.NewContext(req, rec)
-
-	err := Assert(s.doc)(func(ctx ec.Context) error {
-		return ctx.String(http.StatusOK, "test")
-	})(c)
-
-	s.assert.NoError(err)
-}
-
-func (s *AssertTestSuite) TestMiddlewareWithSkipper() {
-	req := httptest.NewRequest(ec.PATCH, "/api/pets/1", nil)
-	req.Header.Add(ec.HeaderContentType, ec.MIMEApplicationJSON)
-
-	rec := httptest.NewRecorder()
-
-	c := s.srv.NewContext(req, rec)
-
-	cfg := AssertConfig{
-		Document: s.doc,
-		Skipper: func(c ec.Context) bool {
-			return true
+	tests.Add("with skipper", tt{
+		cfg: AssertConfig{
+			Document: doc,
+			Skipper: func(ctx ec.Context) bool {
+				return true
+			},
 		},
-	}
+	})
 
-	err := AssertWithConfig(cfg)(func(ctx ec.Context) error {
-		return ctx.String(http.StatusOK, "test")
-	})(c)
+	tests.Add("without document", tt{
+		cfg: AssertConfig{},
+		err: "echo: assert middleware requires an openapi-assert document",
+	})
 
-	s.assert.NoError(err)
-}
+	tests.Run(t, func(t *testing.T, tt tt) {
+		defer func() {
+			r := recover()
+			if r != nil && r != tt.err {
+				t.Errorf("want %v, got %v", tt.err, r)
+			}
+		}()
 
-func (s *AssertTestSuite) TestMiddlewareWithoutDocument() {
-	req := httptest.NewRequest(ec.PATCH, "/api/pets/1", nil)
-	rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPatch, "/api/pets/1", nil)
+		req.Header.Add("Content-Type", "application/json")
 
-	c := s.srv.NewContext(req, rec)
+		rec := httptest.NewRecorder()
+		ctx := ec.New().NewContext(req, rec)
 
-	cfg := AssertConfig{
-		Skipper: func(c ec.Context) bool {
-			return true
-		},
-	}
-
-	caller := func() {
-		AssertWithConfig(cfg)(func(ctx ec.Context) error {
+		err := AssertWithConfig(tt.cfg)(func(ctx ec.Context) error {
 			return ctx.String(http.StatusOK, "test")
-		})(c)
-	}
+		})(ctx)
 
-	s.assert.Panics(caller)
+		testy.Error(t, tt.err, err)
+	})
+
 }
 
-func TestAssertTestSuite(t *testing.T) {
-	suite.Run(t, new(AssertTestSuite))
+func TestMiddleware(t *testing.T) {
+	reader := strings.NewReader(`{"id": 1, "name": "doggo"}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/pets", reader)
+	req.Header.Add("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+
+	c := ec.New().NewContext(req, rec)
+
+	doc, _ := oapi.LoadFromURI("../../fixtures/docs.json")
+
+	err := Assert(doc)(func(ctx ec.Context) error {
+		return ctx.String(http.StatusOK, "test")
+	})(c)
+
+	if err != nil {
+		t.Error(err)
+	}
 }
