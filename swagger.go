@@ -1,6 +1,8 @@
 package assert
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"strconv"
@@ -9,7 +11,6 @@ import (
 	"github.com/go-openapi/jsonpointer"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
-	"github.com/pkg/errors"
 	"github.com/yosida95/uritemplate"
 )
 
@@ -30,12 +31,12 @@ type Swagger struct {
 func LoadFromURI(uri string) (*Swagger, error) {
 	doc, err := loads.Spec(uri)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrSwaggerLoad.Error())
+		return nil, fmt.Errorf("%s: %w", ErrSwaggerLoad, err)
 	}
 
 	doc, err = doc.Expanded()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to expand the document")
+		return nil, fmt.Errorf("unable to expand the document: %w", err)
 	}
 
 	return &Swagger{doc.Spec()}, nil
@@ -45,17 +46,17 @@ func LoadFromURI(uri string) (*Swagger, error) {
 func LoadFromReader(r io.Reader) (*Swagger, error) {
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrSwaggerLoad.Error())
+		return nil, fmt.Errorf("%s: %w", ErrSwaggerLoad, err)
 	}
 
 	doc, err := loads.Analyzed(data, "")
 	if err != nil {
-		return nil, errors.Wrap(err, ErrSwaggerLoad.Error())
+		return nil, fmt.Errorf("%s: %w", ErrSwaggerLoad, err)
 	}
 
 	doc, err = doc.Expanded()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to expand the document")
+		return nil, fmt.Errorf("unable to expand the document: %w", err)
 	}
 
 	return &Swagger{doc.Spec()}, nil
@@ -66,7 +67,7 @@ func (s *Swagger) findPath(uri string) (string, error) {
 	for path := range s.spec.Paths.Paths {
 		tmpl, err := uritemplate.New(s.spec.BasePath + path)
 		if err != nil {
-			return "", errors.Wrap(err, "resource uri does not match")
+			return "", fmt.Errorf("resource uri does not match: %w", err)
 		}
 
 		if tmpl.Regexp().MatchString(uri) {
@@ -88,7 +89,7 @@ func (s *Swagger) findNode(segments ...string) (interface{}, error) {
 
 	data, _, err := pointer.Get(s.spec)
 	if err != nil {
-		return nil, errors.Wrap(err, "node does not exists")
+		return nil, fmt.Errorf("node does not exists: %w", err)
 	}
 
 	return data, nil
