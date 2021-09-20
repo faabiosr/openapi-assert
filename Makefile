@@ -5,11 +5,6 @@ clean:
 	@rm -fR ./vendor/ ./cover.*
 .PHONY: clean
 
-# Download project dependencies
-configure:
-	dep ensure -v
-.PHONY: configure
-
 # Run tests and generates html coverage file
 cover: test
 	@go tool cover -html=./coverage.text -o ./cover.html

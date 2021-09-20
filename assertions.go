@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	// Assertions packs all assert methods into one structure
+	// Assertions packs all assert methods into one structure.
 	Assertions struct {
 		doc Document
 	}
