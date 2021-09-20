@@ -34,31 +34,6 @@ import "github.com/faabiosr/openapi-assert"
 The package provides methods that allow you to assert raw data using swagger files.
 
 See it in action:
-
-```go
-package main
-
-import (
-    assert "github.com/faabiosr/openapi-assert"
-    "log"
-    "net/http"
-)
-
-func main() {
-    doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    log.Println(
-        assert.RequestMediaType("text/html", doc, "/pet", http.MethodPost),
-    )
-}
-```
-
-If you want to assert data many times, it is recommended to create instance of assert:
-
 ```go
 package main
 
@@ -120,7 +95,7 @@ func main() {
 }
 ```
 
-Asserting http request object using the swagger schema file:
+Asserting http response object using the swagger schema file:
 
 ```go
 package main

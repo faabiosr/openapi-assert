@@ -2,112 +2,411 @@ package assert
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"gitlab.com/flimzy/testy"
 )
 
-func TestAssertions(t *testing.T) {
-	doc, _ := LoadFromURI("./fixtures/docs.json")
-	assertions := New(doc)
+func TestAssertionsRequestMediaType(t *testing.T) {
+	type tt struct {
+		path      string
+		method    string
+		mediaType string
+		err       string
+	}
 
-	t.Run("request media type", func(t *testing.T) {
-		err := assertions.RequestMediaType("application/json", "/api/food", http.MethodGet)
-		if err != nil {
-			t.Error(err)
-		}
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:      "/pet",
+		method:    http.MethodPost,
+		mediaType: "application/json",
+		err:       "resource uri does not match",
 	})
 
-	t.Run("response media type", func(t *testing.T) {
-		err := assertions.ResponseMediaType("application/json", "/api/food", http.MethodGet)
-		if err != nil {
-			t.Error(err)
-		}
+	tests.Add("invalid type", tt{
+		path:      "/api/food",
+		method:    http.MethodGet,
+		mediaType: "text/html",
+		err:       "failed asserting that 'text/html' is an allowed media type (application/json)",
 	})
 
-	t.Run("request headers", func(t *testing.T) {
-		headers := map[string][]string{
-			"x-required-header": {"value"},
-		}
-
-		err := assertions.RequestHeaders(headers, "/api/pets/1", http.MethodPatch)
-		if err != nil {
-			t.Error(err)
-		}
+	tests.Add("success", tt{
+		path:      "/api/food",
+		method:    http.MethodGet,
+		mediaType: "application/json",
 	})
 
-	t.Run("request headers", func(t *testing.T) {
-		headers := map[string][]string{
-			"etag": {"value"},
-		}
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
 
-		err := assertions.ResponseHeaders(headers, "/api/pets", http.MethodGet, http.StatusOK)
-		if err != nil {
-			t.Error(err)
-		}
+		err := assertions.RequestMediaType(tt.mediaType, tt.path, tt.method)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsResponseMediaType(t *testing.T) {
+	type tt struct {
+		path      string
+		method    string
+		mediaType string
+		err       string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:      "/pet",
+		method:    http.MethodPost,
+		mediaType: "application/json",
+		err:       "resource uri does not match",
 	})
 
-	t.Run("request query", func(t *testing.T) {
-		query := url.Values{}
-		query.Add("tags", "foo")
-		query.Add("tags", "bar")
-		query.Add("limit", "1")
-
-		err := assertions.RequestQuery(query, "/api/pets", http.MethodGet)
-		if err != nil {
-			t.Error(err)
-		}
+	tests.Add("invalid type", tt{
+		path:      "/api/food",
+		method:    http.MethodGet,
+		mediaType: "text/html",
+		err:       "failed asserting that 'text/html' is an allowed media type (application/json)",
 	})
 
-	t.Run("request body", func(t *testing.T) {
-		buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
-
-		err := assertions.RequestBody(buf, "/api/pets", http.MethodPost)
-		if err != nil {
-			t.Error(err)
-		}
+	tests.Add("success", tt{
+		path:      "/api/food",
+		method:    http.MethodGet,
+		mediaType: "application/json",
 	})
 
-	t.Run("response body", func(t *testing.T) {
-		buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
 
-		err := assertions.ResponseBody(buf, "/api/pets", http.MethodGet, http.StatusOK)
-		if err != nil {
-			t.Error(err)
-		}
+		err := assertions.ResponseMediaType(tt.mediaType, tt.path, tt.method)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsRequestHeaders(t *testing.T) {
+	type tt struct {
+		path    string
+		method  string
+		headers map[string][]string
+		err     string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/pet",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
 	})
 
-	t.Run("request", func(t *testing.T) {
-		buf := bytes.NewBufferString(`{"id": 1, "name": "doggo"}`)
+	tests.Add("required values", tt{
+		path:   "/api/pets/1",
+		method: http.MethodPatch,
+		err:    "failed asserting that '{}' is a valid request header (x-required-header is required)",
+	})
 
-		req, _ := http.NewRequest(http.MethodPost, "/api/pets", buf)
-		req.Header.Add("Content-Type", "application/json")
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
+		err := assertions.RequestHeaders(tt.headers, tt.path, tt.method)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsResponseHeaders(t *testing.T) {
+	type tt struct {
+		path    string
+		method  string
+		headers map[string][]string
+		status  int
+		err     string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/pet",
+		method: http.MethodPost,
+		status: http.StatusOK,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("required values", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		err:    "failed asserting that '{}' is a valid response header (etag is required)",
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
+		err := assertions.ResponseHeaders(tt.headers, tt.path, tt.method, tt.status)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsRequestQuery(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		err    string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/pet",
+		method: http.MethodPost,
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("required values", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		err:    "failed asserting that '{}' is a valid request query (limit is required)",
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
+		err := assertions.RequestQuery(url.Values{}, tt.path, tt.method)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsRequestBody(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		body   string
+		err    string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/pet",
+		method: http.MethodPost,
+		body:   "{}",
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("invalid data", tt{
+		path:   "/api/pets",
+		method: http.MethodPost,
+		err:    "EOF",
+	})
+
+	tests.Add("required values", tt{
+		path:   "/api/pets",
+		method: http.MethodPost,
+		body:   "{}",
+		err:    "failed asserting that '{}' is a valid request body (id is required, name is required, id is required, Must validate all the schemas (allOf))",
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
+		buf := bytes.NewBufferString(tt.body)
+		err := assertions.RequestBody(buf, tt.path, tt.method)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsResponseBody(t *testing.T) {
+	type tt struct {
+		path   string
+		method string
+		status int
+		body   string
+		err    string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("invalid path", tt{
+		path:   "/pet",
+		method: http.MethodPost,
+		status: http.StatusOK,
+		body:   "{}",
+		err:    "resource uri does not match",
+	})
+
+	tests.Add("invalid data", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		err:    "EOF",
+	})
+
+	tests.Add("required values", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		body:   "{}",
+		err:    "failed asserting that '{}' is a valid response body (Invalid type. Expected: array, given: object)",
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
+		buf := bytes.NewBufferString(tt.body)
+		err := assertions.ResponseBody(buf, tt.path, tt.method, tt.status)
+		testy.Error(t, tt.err, err)
+	})
+}
+
+func TestAssertionsRequest(t *testing.T) {
+	type tt struct {
+		path      string
+		method    string
+		mediaType string
+		body      io.Reader
+		err       string
+	}
+
+	tests := testy.NewTable()
+
+	tests.Add("without required headers", tt{
+		path:   "/api/pets/1",
+		method: http.MethodPatch,
+		err:    `failed asserting that '{"Content-Type":""}' is a valid request header (x-required-header is required)`,
+	})
+
+	tests.Add("without media type", tt{
+		path:      "/api/food",
+		method:    http.MethodGet,
+		mediaType: "text/html",
+		body:      bytes.NewBufferString("{}"),
+		err:       "failed asserting that 'text/html' is an allowed media type (application/json)",
+	})
+
+	tests.Add("without query", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		err:    "failed asserting that '{}' is a valid request query (limit is required)",
+	})
+
+	tests.Add("without required body", tt{
+		path:      "/api/pets",
+		method:    http.MethodPost,
+		mediaType: "application/json",
+		body:      bytes.NewBufferString("{}"),
+		err:       "failed asserting that '{}' is a valid request body (id is required, name is required, id is required, Must validate all the schemas (allOf))",
+	})
+
+	tests.Add("without body", tt{
+		path:      "/api/food",
+		method:    http.MethodGet,
+		mediaType: "application/json",
+		body:      bytes.NewBufferString("{}"),
+	})
+
+	tests.Add("read body", tt{
+		path:      "/api/pets",
+		method:    http.MethodPost,
+		mediaType: "application/json",
+		body:      bytes.NewBufferString(`{"id": 1, "name": "doggo"}`),
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
+		req, _ := http.NewRequest(tt.method, tt.path, tt.body)
+		req.Header.Add("Content-Type", tt.mediaType)
 
 		err := assertions.Request(req)
-		if err != nil {
-			t.Error(err)
+		testy.Error(t, tt.err, err)
+
+		if d := testy.DiffJSON(testy.Snapshot(t), req.Body); d != nil {
+			t.Error(d)
 		}
 	})
+}
 
-	t.Run("response", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "/api/pets", nil)
+func TestAssertionsResponse(t *testing.T) {
+	type tt struct {
+		path    string
+		method  string
+		status  int
+		headers map[string][]string
+		body    io.ReadCloser
+		err     string
+	}
 
-		buf := bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)
+	tests := testy.NewTable()
 
+	tests.Add("without required headers", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		err:    "failed asserting that '{}' is a valid response header (etag is required)",
+	})
+
+	tests.Add("without media type", tt{
+		path:   "/api/food",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		headers: map[string][]string{
+			"Content-Type": {"text/html"},
+		},
+		body: ioutil.NopCloser(bytes.NewBufferString("{}")),
+		err:  "failed asserting that 'text/html' is an allowed media type (application/json)",
+	})
+
+	tests.Add("without required body", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		headers: map[string][]string{
+			"Content-Type": {"text/html"},
+			"etag":         {"value"},
+		},
+		body: ioutil.NopCloser(bytes.NewBufferString("{}")),
+		err:  "failed asserting that '{}' is a valid response body (Invalid type. Expected: array, given: object)",
+	})
+
+	tests.Add("read body", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		headers: map[string][]string{
+			"Content-Type": {"application/json"},
+			"etag":         {"value"},
+		},
+		body: ioutil.NopCloser(bytes.NewBufferString(`[{"id": 1, "name": "doggo"}]`)),
+	})
+
+	tests.Run(t, func(t *testing.T, tt tt) {
+		req, _ := http.NewRequest(tt.method, tt.path, nil)
 		res := &http.Response{
-			StatusCode: http.StatusOK,
+			StatusCode: tt.status,
 			Request:    req,
-			Header: map[string][]string{
-				"Content-Type": {"application/json"},
-				"etag":         {"value"},
-			},
-			Body: ioutil.NopCloser(buf),
+			Header:     tt.headers,
+			Body:       tt.body,
 		}
 
+		doc, _ := LoadFromURI("./fixtures/docs.json")
+		assertions := New(doc)
+
 		err := assertions.Response(res)
-		if err != nil {
-			t.Error(err)
+		testy.Error(t, tt.err, err)
+
+		if d := testy.DiffJSON(testy.Snapshot(t), res.Body); d != nil {
+			t.Error(d)
 		}
 	})
 }

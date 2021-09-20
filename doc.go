@@ -18,27 +18,6 @@
 //          log.Fatal(err)
 //      }
 //
-//      log.Println(
-//          assert.RequestMediaType("text/html", doc, "/pet", http.MethodPost),
-//      )
-//  }
-//
-// If you want to assert data many times, it is recommended to create instance of assert:
-//  package main
-//
-//  import (
-//      assert "github.com/faabiosr/openapi-assert"
-//      "log"
-//      "net/http"
-//  )
-//
-//  func main() {
-//      doc, err := assert.LoadFromURI("http://petstore.swagger.io/v2/swagger.json")
-//
-//      if err != nil {
-//          log.Fatal(err)
-//      }
-//
 //      assert := assert.New(doc)
 //
 //      log.Println(
