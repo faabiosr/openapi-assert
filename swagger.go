@@ -21,12 +21,10 @@ const (
 	ErrBodyNotFound = err("body does not exists")
 )
 
-type (
-	// Swagger stores the loaded swagger spec.
-	Swagger struct {
-		spec *spec.Swagger
-	}
-)
+// Swagger stores the loaded swagger spec.
+type Swagger struct {
+	spec *spec.Swagger
+}
 
 // LoadFromURI loads and expands swagger document by uri.
 func LoadFromURI(uri string) (*Swagger, error) {

@@ -13,12 +13,10 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-type (
-	// Assertions packs all assert methods into one structure.
-	Assertions struct {
-		doc Document
-	}
-)
+// Assertions packs all assert methods into one structure.
+type Assertions struct {
+	doc Document
+}
 
 // New returns the Assertions instance.
 func New(doc Document) *Assertions {
@@ -157,6 +155,7 @@ func (a *Assertions) RequestQuery(query url.Values, path, method string) error {
 	if err != nil {
 		return err
 	}
+
 	if result.Valid() {
 		return nil
 	}
