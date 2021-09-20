@@ -60,7 +60,6 @@ func TestMiddlewareWithConfig(t *testing.T) {
 
 		testy.Error(t, tt.err, err)
 	})
-
 }
 
 func TestMiddleware(t *testing.T) {
@@ -70,13 +69,11 @@ func TestMiddleware(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	c := ec.New().NewContext(req, rec)
-
 	doc, _ := oapi.LoadFromURI("../../fixtures/docs.json")
 
 	err := Assert(doc)(func(ctx ec.Context) error {
 		return ctx.String(http.StatusOK, "test")
 	})(c)
-
 	if err != nil {
 		t.Error(err)
 	}

@@ -78,7 +78,6 @@ func (a *Assertions) RequestHeaders(header http.Header, path, method string) err
 		gojsonschema.NewGoLoader(schema),
 		gojsonschema.NewGoLoader(headers),
 	)
-
 	if err != nil {
 		return err
 	}
@@ -120,7 +119,6 @@ func (a *Assertions) ResponseHeaders(header http.Header, path, method string, st
 		gojsonschema.NewGoLoader(schema),
 		gojsonschema.NewGoLoader(headers),
 	)
-
 	if err != nil {
 		return err
 	}
@@ -156,11 +154,9 @@ func (a *Assertions) RequestQuery(query url.Values, path, method string) error {
 		gojsonschema.NewGoLoader(schema),
 		gojsonschema.NewGoLoader(query),
 	)
-
 	if err != nil {
 		return err
 	}
-
 	if result.Valid() {
 		return nil
 	}
@@ -189,7 +185,6 @@ func (a *Assertions) RequestBody(body io.Reader, path, method string) error {
 	}
 
 	data, err := ioutil.ReadAll(body)
-
 	if err != nil {
 		return err
 	}
@@ -198,7 +193,6 @@ func (a *Assertions) RequestBody(body io.Reader, path, method string) error {
 		gojsonschema.NewGoLoader(schema),
 		gojsonschema.NewBytesLoader(data),
 	)
-
 	if err != nil {
 		return err
 	}
@@ -226,7 +220,6 @@ func (a *Assertions) ResponseBody(body io.Reader, path, method string, statusCod
 	}
 
 	data, err := ioutil.ReadAll(body)
-
 	if err != nil {
 		return err
 	}
@@ -235,7 +228,6 @@ func (a *Assertions) ResponseBody(body io.Reader, path, method string, statusCod
 		gojsonschema.NewGoLoader(schema),
 		gojsonschema.NewBytesLoader(data),
 	)
-
 	if err != nil {
 		return err
 	}

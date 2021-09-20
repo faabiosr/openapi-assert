@@ -72,7 +72,7 @@ func (s *Swagger) findPath(uri string) (string, error) {
 		}
 
 		if tmpl.Regexp().MatchString(uri) {
-			return strings.Replace(path, "/", "~1", -1), nil
+			return strings.ReplaceAll(path, "/", "~1"), nil
 		}
 	}
 
