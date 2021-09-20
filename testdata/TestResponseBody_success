@@ -49,7 +49,7 @@
     OneOf: ([]spec.Schema) <nil>,
     AnyOf: ([]spec.Schema) <nil>,
     Not: (*spec.Schema)(<nil>),
-    Properties: (map[string]spec.Schema) (len=3) {
+    Properties: (spec.SchemaProperties) (len=3) {
       (string) (len=2) "id": (spec.Schema) {
         VendorExtensible: (spec.VendorExtensible) {
           Extensions: (spec.Extensions) <nil>
@@ -98,9 +98,9 @@
           OneOf: ([]spec.Schema) <nil>,
           AnyOf: ([]spec.Schema) <nil>,
           Not: (*spec.Schema)(<nil>),
-          Properties: (map[string]spec.Schema) <nil>,
+          Properties: (spec.SchemaProperties) <nil>,
           AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
-          PatternProperties: (map[string]spec.Schema) <nil>,
+          PatternProperties: (spec.SchemaProperties) <nil>,
           Dependencies: (spec.Dependencies) <nil>,
           AdditionalItems: (*spec.SchemaOrBool)(<nil>),
           Definitions: (spec.Definitions) <nil>
@@ -162,9 +162,9 @@
           OneOf: ([]spec.Schema) <nil>,
           AnyOf: ([]spec.Schema) <nil>,
           Not: (*spec.Schema)(<nil>),
-          Properties: (map[string]spec.Schema) <nil>,
+          Properties: (spec.SchemaProperties) <nil>,
           AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
-          PatternProperties: (map[string]spec.Schema) <nil>,
+          PatternProperties: (spec.SchemaProperties) <nil>,
           Dependencies: (spec.Dependencies) <nil>,
           AdditionalItems: (*spec.SchemaOrBool)(<nil>),
           Definitions: (spec.Definitions) <nil>
@@ -226,9 +226,9 @@
           OneOf: ([]spec.Schema) <nil>,
           AnyOf: ([]spec.Schema) <nil>,
           Not: (*spec.Schema)(<nil>),
-          Properties: (map[string]spec.Schema) <nil>,
+          Properties: (spec.SchemaProperties) <nil>,
           AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
-          PatternProperties: (map[string]spec.Schema) <nil>,
+          PatternProperties: (spec.SchemaProperties) <nil>,
           Dependencies: (spec.Dependencies) <nil>,
           AdditionalItems: (*spec.SchemaOrBool)(<nil>),
           Definitions: (spec.Definitions) <nil>
@@ -244,7 +244,7 @@
       }
     },
     AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
-    PatternProperties: (map[string]spec.Schema) <nil>,
+    PatternProperties: (spec.SchemaProperties) <nil>,
     Dependencies: (spec.Dependencies) <nil>,
     AdditionalItems: (*spec.SchemaOrBool)(<nil>),
     Definitions: (spec.Definitions) <nil>

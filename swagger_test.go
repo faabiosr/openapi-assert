@@ -25,7 +25,7 @@ func TestLoadFromURI(t *testing.T) {
 
 	tests.Add("invalid file", tt{
 		uri: "./fixtures/invalid-doc.json",
-		err: `unable to expand the document: object has no key "ErrorModel"`,
+		err: `unable to expand the document: object has no key "definitions"`,
 	})
 
 	tests.Add("success", tt{
