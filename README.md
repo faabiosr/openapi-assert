@@ -1,6 +1,5 @@
 # OpenAPI - Assert
 
-[![Build Status](https://img.shields.io/travis/faabiosr/openapi-assert/master.svg?style=flat-square)](https://travis-ci.org/faabiosr/openapi-assert)
 [![Codecov branch](https://img.shields.io/codecov/c/github/faabiosr/openapi-assert/master.svg?style=flat-square)](https://codecov.io/gh/faabiosr/openapi-assert)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/faabiosr/openapi-assert)
 [![Go Report Card](https://goreportcard.com/badge/github.com/faabiosr/openapi-assert?style=flat-square)](https://goreportcard.com/report/github.com/faabiosr/openapi-assert)
