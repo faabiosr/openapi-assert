@@ -22,28 +22,25 @@ const (
 	ErrBodyNotFound = err("body does not exists")
 )
 
-// Swagger stores the loaded swagger spec.
-type Swagger struct {
+// swagger stores the loaded swagger spec.
+type swagger struct {
 	spec *spec.Swagger
 }
 
+var _ Document = &swagger{}
+
 // LoadFromURI loads and expands swagger document by uri.
-func LoadFromURI(uri string) (*Swagger, error) {
+func LoadFromURI(uri string) (Document, error) {
 	doc, err := loads.Spec(uri)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", ErrSwaggerLoad, err)
 	}
 
-	doc, err = doc.Expanded()
-	if err != nil {
-		return nil, fmt.Errorf("unable to expand the document: %w", err)
-	}
-
-	return &Swagger{doc.Spec()}, nil
+	return load(doc)
 }
 
 // LoadFromReader loads and expand swagger document from io.Reader.
-func LoadFromReader(r io.Reader) (*Swagger, error) {
+func LoadFromReader(r io.Reader) (Document, error) {
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", ErrSwaggerLoad, err)
@@ -54,16 +51,20 @@ func LoadFromReader(r io.Reader) (*Swagger, error) {
 		return nil, fmt.Errorf("%s: %w", ErrSwaggerLoad, err)
 	}
 
-	doc, err = doc.Expanded()
+	return load(doc)
+}
+
+func load(doc *loads.Document) (Document, error) {
+	doc, err := doc.Expanded()
 	if err != nil {
 		return nil, fmt.Errorf("unable to expand the document: %w", err)
 	}
 
-	return &Swagger{doc.Spec()}, nil
+	return &swagger{doc.Spec()}, nil
 }
 
 // findPath searches for an uri in document and returns the path.
-func (s *Swagger) findPath(uri string) (string, error) {
+func (s *swagger) findPath(uri string) (string, error) {
 	for path := range s.spec.Paths.Paths {
 		tmpl, err := uritemplate.New(s.spec.BasePath + path)
 		if err != nil {
@@ -79,7 +80,7 @@ func (s *Swagger) findPath(uri string) (string, error) {
 }
 
 // findNode searches a node using segments in the schema.
-func (s *Swagger) findNode(segments ...string) (interface{}, error) {
+func (s *swagger) findNode(segments ...string) (interface{}, error) {
 	segments = append([]string{""}, segments...)
 
 	pointer, err := jsonpointer.New(strings.Join(segments, "/"))
@@ -95,7 +96,7 @@ func (s *Swagger) findNode(segments ...string) (interface{}, error) {
 	return data, nil
 }
 
-func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
+func (s *swagger) mediaTypes(path, method, segment string) ([]string, error) {
 	path, err := s.findPath(path)
 	if err != nil {
 		return []string{}, err
@@ -131,16 +132,16 @@ func (s *Swagger) mediaTypes(path, method, segment string) ([]string, error) {
 }
 
 // RequestMediaTypes retrives a list of request media types allowed.
-func (s *Swagger) RequestMediaTypes(path, method string) ([]string, error) {
+func (s *swagger) RequestMediaTypes(path, method string) ([]string, error) {
 	return s.mediaTypes(path, method, "consumes")
 }
 
 // ResponseMediaTypes retrives a list of response media types allowed.
-func (s *Swagger) ResponseMediaTypes(path, method string) ([]string, error) {
+func (s *swagger) ResponseMediaTypes(path, method string) ([]string, error) {
 	return s.mediaTypes(path, method, "produces")
 }
 
-func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, error) {
+func (s *swagger) requestParameters(path, method string) ([]spec.Parameter, error) {
 	var params []spec.Parameter
 
 	path, err := s.findPath(path)
@@ -161,7 +162,7 @@ func (s *Swagger) requestParameters(path, method string) ([]spec.Parameter, erro
 	return params, nil
 }
 
-func (s *Swagger) response(path, method string, statusCode int) (spec.Response, error) {
+func (s *swagger) response(path, method string, statusCode int) (spec.Response, error) {
 	var res spec.Response
 
 	path, err := s.findPath(path)
@@ -185,7 +186,7 @@ func (s *Swagger) response(path, method string, statusCode int) (spec.Response, 
 }
 
 // RequestHeaders retrieves a list of request headers.
-func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
+func (s *swagger) RequestHeaders(path, method string) (Headers, error) {
 	headers := Headers{}
 
 	params, err := s.requestParameters(path, method)
@@ -196,18 +197,19 @@ func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
 	required := Required{}
 
 	for _, param := range params {
-		if param.In == "header" {
-			name := strings.ToLower(param.Name)
+		if param.In != "header" {
+			continue
+		}
 
-			headers[name] = &Param{
-				param.Type,
-				param.Description,
-				param.In,
-			}
+		name := strings.ToLower(param.Name)
+		headers[name] = &Param{
+			param.Type,
+			param.Description,
+			param.In,
+		}
 
-			if param.Required {
-				required = append(required, name)
-			}
+		if param.Required {
+			required = append(required, name)
 		}
 	}
 
@@ -219,7 +221,7 @@ func (s *Swagger) RequestHeaders(path, method string) (Headers, error) {
 }
 
 // ResponseHeaders retrieves a list of response headers.
-func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers, error) {
+func (s *swagger) ResponseHeaders(path, method string, statusCode int) (Headers, error) {
 	headers := Headers{}
 
 	res, err := s.response(path, method, statusCode)
@@ -229,8 +231,8 @@ func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers,
 
 	required := []string{}
 
-	for name, schema := range res.Headers {
-		name := strings.ToLower(name)
+	for k, schema := range res.Headers {
+		name := strings.ToLower(k)
 		headers[name] = schema
 
 		required = append(required, name)
@@ -244,7 +246,7 @@ func (s *Swagger) ResponseHeaders(path, method string, statusCode int) (Headers,
 }
 
 // RequestQuery retrieves a list of request query.
-func (s *Swagger) RequestQuery(path, method string) (Query, error) {
+func (s *swagger) RequestQuery(path, method string) (Query, error) {
 	query := Query{}
 
 	params, err := s.requestParameters(path, method)
@@ -255,18 +257,19 @@ func (s *Swagger) RequestQuery(path, method string) (Query, error) {
 	required := Required{}
 
 	for _, param := range params {
-		if param.In == "query" {
-			name := strings.ToLower(param.Name)
+		if param.In != "query" {
+			continue
+		}
 
-			query[name] = &Param{
-				param.Type,
-				param.Description,
-				param.In,
-			}
+		name := strings.ToLower(param.Name)
+		query[name] = &Param{
+			param.Type,
+			param.Description,
+			param.In,
+		}
 
-			if param.Required {
-				required = append(required, name)
-			}
+		if param.Required {
+			required = append(required, name)
 		}
 	}
 
@@ -278,7 +281,7 @@ func (s *Swagger) RequestQuery(path, method string) (Query, error) {
 }
 
 // RequestBody retrieves the request body.
-func (s *Swagger) RequestBody(path, method string) (Body, error) {
+func (s *swagger) RequestBody(path, method string) (Body, error) {
 	params, err := s.requestParameters(path, method)
 	if err != nil {
 		return nil, err
@@ -294,7 +297,7 @@ func (s *Swagger) RequestBody(path, method string) (Body, error) {
 }
 
 // ResponseBody retrieves the response body.
-func (s *Swagger) ResponseBody(path, method string, statusCode int) (Body, error) {
+func (s *swagger) ResponseBody(path, method string, statusCode int) (Body, error) {
 	res, err := s.response(path, method, statusCode)
 	if err != nil {
 		return nil, err
