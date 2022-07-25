@@ -78,7 +78,7 @@ func TestFindPath(t *testing.T) {
 	doc, _ := LoadFromURI("./fixtures/invalid-path.json")
 
 	_, err := doc.findPath("/api/food/a")
-	testy.Error(t, "resource uri does not match: uritemplate:11:invalid varname", err)
+	testy.Error(t, "resource uri does not match: unacceptable variable name: /api/food/{_", err)
 }
 
 func TestRequestMediaTypes(t *testing.T) {

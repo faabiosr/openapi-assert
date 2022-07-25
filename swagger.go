@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/jsonpointer"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
-	"github.com/yosida95/uritemplate"
+	"github.com/yosida95/uritemplate/v3"
 )
 
 const (
