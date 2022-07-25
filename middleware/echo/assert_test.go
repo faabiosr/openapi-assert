@@ -6,9 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	oapi "github.com/faabiosr/openapi-assert"
 	ec "github.com/labstack/echo/v4"
 	"gitlab.com/flimzy/testy"
+
+	oapi "github.com/faabiosr/openapi-assert"
 )
 
 func TestMiddlewareWithConfig(t *testing.T) {

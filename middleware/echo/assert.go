@@ -3,9 +3,10 @@ package echo
 import (
 	"net/http"
 
-	assert "github.com/faabiosr/openapi-assert"
 	"github.com/labstack/echo/v4"
 	mw "github.com/labstack/echo/v4/middleware"
+
+	assert "github.com/faabiosr/openapi-assert"
 )
 
 // AssertConfig defines the config for Assert Assert.

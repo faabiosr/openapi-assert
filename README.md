@@ -40,9 +40,10 @@ See it in action:
 package main
 
 import (
-    assert "github.com/faabiosr/openapi-assert"
     "log"
     "net/http"
+
+    assert "github.com/faabiosr/openapi-assert"
 )
 
 func main() {
@@ -71,9 +72,10 @@ package main
 
 import (
 	"fmt"
-	assert "github.com/faabiosr/openapi-assert"
 	"log"
 	"net/http"
+
+	assert "github.com/faabiosr/openapi-assert"
 )
 
 func main() {
@@ -103,9 +105,10 @@ Asserting http response object using the swagger schema file:
 package main
 
 import (
-	assert "github.com/faabiosr/openapi-assert"
 	"log"
 	"net/http"
+
+	assert "github.com/faabiosr/openapi-assert"
 )
 
 func main() {

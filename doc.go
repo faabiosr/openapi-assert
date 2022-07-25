@@ -6,9 +6,10 @@
 //  package main
 //
 //  import (
-//      assert "github.com/faabiosr/openapi-assert"
 //      "log"
 //      "net/http"
+//
+//      assert "github.com/faabiosr/openapi-assert"
 //  )
 //
 //  func main() {
@@ -34,9 +35,10 @@
 //
 //  import (
 //      "fmt"
-//      assert "github.com/faabiosr/openapi-assert"
 //      "log"
 //      "net/http"
+//
+//      assert "github.com/faabiosr/openapi-assert"
 //  )
 //
 //  func main() {
@@ -63,9 +65,10 @@
 //  package main
 //
 //  import (
-//      assert "github.com/faabiosr/openapi-assert"
 //      "log"
 //      "net/http"
+//
+//      assert "github.com/faabiosr/openapi-assert"
 //  )
 //
 //  func main() {
