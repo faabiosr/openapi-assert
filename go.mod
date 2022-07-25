@@ -1,6 +1,6 @@
 module github.com/faabiosr/openapi-assert
 
-go 1.11
+go 1.16
 
 require (
 	github.com/go-openapi/jsonpointer v0.19.5
