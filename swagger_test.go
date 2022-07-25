@@ -1,12 +1,14 @@
 package assert
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/go-openapi/loads"
 	"gitlab.com/flimzy/testy"
 )
 
@@ -51,6 +53,11 @@ func TestLoadFromReader(t *testing.T) {
 		err:    "unable to load the document by uri: unexpected end of JSON input",
 	})
 
+	tests.Add("reader failed", tt{
+		reader: testy.ErrorReader("data", errors.New("failed")),
+		err:    "unable to load the document by uri: failed",
+	})
+
 	tests.Add("invalid file", func() interface{} {
 		f, _ := os.Open("./fixtures/invalid-doc.json")
 
@@ -75,9 +82,12 @@ func TestLoadFromReader(t *testing.T) {
 }
 
 func TestFindPath(t *testing.T) {
-	doc, _ := LoadFromURI("./fixtures/invalid-path.json")
+	doc, _ := loads.Spec("./fixtures/invalid-path.json")
+	doc, _ = doc.Expanded()
 
-	_, err := doc.findPath("/api/food/a")
+	s := &swagger{doc.Spec()}
+
+	_, err := s.findPath("/api/food/a")
 	testy.Error(t, "resource uri does not match: unacceptable variable name: /api/food/{_", err)
 }
 
