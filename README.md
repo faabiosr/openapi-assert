@@ -1,9 +1,11 @@
 # OpenAPI - Assert
 
+[![Build Status](https://img.shields.io/github/workflow/status/faabiosr/openapi-assert/test?style=flat-square&logo=github)](https://github.com/faabiosr/openapi-assert/actions?query=workflow:test)
 [![Codecov branch](https://img.shields.io/codecov/c/github/faabiosr/openapi-assert/master.svg?style=flat-square)](https://codecov.io/gh/faabiosr/openapi-assert)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/faabiosr/openapi-assert)
+[![Go Reference](https://pkg.go.dev/badge/github.com/faabiosr/openapi-assert.svg)](https://pkg.go.dev/github.com/faabiosr/openapi-assert)
 [![Go Report Card](https://goreportcard.com/badge/github.com/faabiosr/openapi-assert?style=flat-square)](https://goreportcard.com/report/github.com/faabiosr/openapi-assert)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/faabiosr/openapi-assert/blob/master/LICENSE)
+
 
 ## Description
 
