@@ -72,10 +72,7 @@ func (a *Assertions) RequestHeaders(header http.Header, path, method string) err
 		headers[k] = strings.Join(v, ", ")
 	}
 
-	result, err := gojsonschema.Validate(
-		gojsonschema.NewGoLoader(schema),
-		gojsonschema.NewGoLoader(headers),
-	)
+	result, err := a.validate(schema, headers)
 	if err != nil {
 		return err
 	}
@@ -113,10 +110,7 @@ func (a *Assertions) ResponseHeaders(header http.Header, path, method string, st
 		headers[k] = strings.Join(v, ", ")
 	}
 
-	result, err := gojsonschema.Validate(
-		gojsonschema.NewGoLoader(schema),
-		gojsonschema.NewGoLoader(headers),
-	)
+	result, err := a.validate(schema, headers)
 	if err != nil {
 		return err
 	}
@@ -148,10 +142,7 @@ func (a *Assertions) RequestQuery(query url.Values, path, method string) error {
 		return err
 	}
 
-	result, err := gojsonschema.Validate(
-		gojsonschema.NewGoLoader(schema),
-		gojsonschema.NewGoLoader(query),
-	)
+	result, err := a.validate(schema, query)
 	if err != nil {
 		return err
 	}
@@ -188,10 +179,7 @@ func (a *Assertions) RequestBody(body io.Reader, path, method string) error {
 		return err
 	}
 
-	result, err := gojsonschema.Validate(
-		gojsonschema.NewGoLoader(schema),
-		gojsonschema.NewBytesLoader(data),
-	)
+	result, err := a.validate(schema, data)
 	if err != nil {
 		return err
 	}
@@ -223,10 +211,7 @@ func (a *Assertions) ResponseBody(body io.Reader, path, method string, statusCod
 		return err
 	}
 
-	result, err := gojsonschema.Validate(
-		gojsonschema.NewGoLoader(schema),
-		gojsonschema.NewBytesLoader(data),
-	)
+	result, err := a.validate(schema, data)
 	if err != nil {
 		return err
 	}
@@ -294,6 +279,19 @@ func (a *Assertions) Response(res *http.Response) error {
 	res.Body = ioutil.NopCloser(buf)
 
 	return a.ResponseBody(reader, path, method, statusCode)
+}
+
+func (a *Assertions) validate(schema, data interface{}) (*gojsonschema.Result, error) {
+	loader := gojsonschema.NewGoLoader(data)
+
+	if b, ok := data.([]byte); ok {
+		loader = gojsonschema.NewBytesLoader(b)
+	}
+
+	return gojsonschema.Validate(
+		gojsonschema.NewGoLoader(schema),
+		loader,
+	)
 }
 
 func failf(format string, a ...interface{}) error {

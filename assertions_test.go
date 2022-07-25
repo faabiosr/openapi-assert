@@ -2,10 +2,12 @@ package assert
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 
 	"gitlab.com/flimzy/testy"
@@ -188,7 +190,7 @@ func TestAssertionsRequestBody(t *testing.T) {
 	type tt struct {
 		path   string
 		method string
-		body   string
+		body   io.Reader
 		err    string
 	}
 
@@ -197,20 +199,28 @@ func TestAssertionsRequestBody(t *testing.T) {
 	tests.Add("invalid path", tt{
 		path:   "/pet",
 		method: http.MethodPost,
-		body:   "{}",
+		body:   strings.NewReader("{}"),
 		err:    "resource uri does not match",
+	})
+
+	tests.Add("reader failed", tt{
+		path:   "/api/pets",
+		method: http.MethodPost,
+		body:   testy.ErrorReader("", errors.New("failed")),
+		err:    "failed",
 	})
 
 	tests.Add("invalid data", tt{
 		path:   "/api/pets",
 		method: http.MethodPost,
+		body:   strings.NewReader(""),
 		err:    "EOF",
 	})
 
 	tests.Add("required values", tt{
 		path:   "/api/pets",
 		method: http.MethodPost,
-		body:   "{}",
+		body:   strings.NewReader("{}"),
 		err:    "failed asserting that '{}' is a valid request body (id is required, name is required, id is required, Must validate all the schemas (allOf))",
 	})
 
@@ -218,8 +228,7 @@ func TestAssertionsRequestBody(t *testing.T) {
 		doc, _ := LoadFromURI("./fixtures/docs.json")
 		assertions := New(doc)
 
-		buf := bytes.NewBufferString(tt.body)
-		err := assertions.RequestBody(buf, tt.path, tt.method)
+		err := assertions.RequestBody(tt.body, tt.path, tt.method)
 		testy.Error(t, tt.err, err)
 	})
 }
@@ -229,7 +238,7 @@ func TestAssertionsResponseBody(t *testing.T) {
 		path   string
 		method string
 		status int
-		body   string
+		body   io.Reader
 		err    string
 	}
 
@@ -239,14 +248,23 @@ func TestAssertionsResponseBody(t *testing.T) {
 		path:   "/pet",
 		method: http.MethodPost,
 		status: http.StatusOK,
-		body:   "{}",
+		body:   strings.NewReader("{}"),
 		err:    "resource uri does not match",
+	})
+
+	tests.Add("reader failed", tt{
+		path:   "/api/pets",
+		method: http.MethodGet,
+		status: http.StatusOK,
+		body:   testy.ErrorReader("", errors.New("failed")),
+		err:    "failed",
 	})
 
 	tests.Add("invalid data", tt{
 		path:   "/api/pets",
 		method: http.MethodGet,
 		status: http.StatusOK,
+		body:   strings.NewReader(""),
 		err:    "EOF",
 	})
 
@@ -254,7 +272,7 @@ func TestAssertionsResponseBody(t *testing.T) {
 		path:   "/api/pets",
 		method: http.MethodGet,
 		status: http.StatusOK,
-		body:   "{}",
+		body:   strings.NewReader("{}"),
 		err:    "failed asserting that '{}' is a valid response body (Invalid type. Expected: array, given: object)",
 	})
 
@@ -262,8 +280,7 @@ func TestAssertionsResponseBody(t *testing.T) {
 		doc, _ := LoadFromURI("./fixtures/docs.json")
 		assertions := New(doc)
 
-		buf := bytes.NewBufferString(tt.body)
-		err := assertions.ResponseBody(buf, tt.path, tt.method, tt.status)
+		err := assertions.ResponseBody(tt.body, tt.path, tt.method, tt.status)
 		testy.Error(t, tt.err, err)
 	})
 }
