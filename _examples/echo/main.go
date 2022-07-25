@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	assert "github.com/faabiosr/openapi-assert"
-	mw "github.com/faabiosr/openapi-assert/middleware/echo"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
+
+	assert "github.com/faabiosr/openapi-assert"
+	mw "github.com/faabiosr/openapi-assert/middleware/echo"
 )
 
 type (
