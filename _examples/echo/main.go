@@ -34,7 +34,6 @@ func main() {
 
 	// OpenAPI - Assert
 	doc, err := assert.LoadFromURI("swagger.yaml")
-
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
