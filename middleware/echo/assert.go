@@ -1,3 +1,4 @@
+// Package echo providers a middleware for echo framework.
 package echo
 
 import (
